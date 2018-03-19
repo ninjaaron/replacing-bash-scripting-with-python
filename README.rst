@@ -1,6 +1,8 @@
 Replacing Bash Scripting with Python
 ====================================
 
+.. contents::
+
 The Unix shell is one of my favorite inventions ever. It's genius, plain
 and simple. The idea is that the user environment is a Turing-complete,
 declarative programming language. It has a dead-simple model for dealing
@@ -113,8 +115,13 @@ to have pretty good support for this kind of thing, and you should just
 choose one that you like and is widely available on Linux and other
 \*nix operating systems.
 
-They main reason I would recommend Python is because it is the language
-covered in this tutorial.
+They main reason I would recommend Python is if you already know it. If
+you don't know anything besides BASH, Python is a reasonable choice for
+your next language. It has a lot of mature, fast third-party libraries
+in a lot of domains. That's the main reason that matters to me.
+
+The other very compelling reason to learn Python is that it is the
+language covered in this tutorial.
 
 Learn Python
 ------------
@@ -128,7 +135,7 @@ If you're new to programming, you might try the book *Introducing
 Python* or perhaps *Think Python*. You may see a lot of recommendations
 for *Learn Python the Hard Way*. I think this method is flawed, though I
 do appreciate that it was written by someone with strong opinions about
-good style.
+correctness, which has some benefits.
 
 This tutorial assumes Python 3.5 or higher, though it may sometimes use
 idioms from 3.6, and I will attempt to document when have used an idiom
@@ -153,8 +160,8 @@ system, the idea of working with files is pretty central. The great
 coreutils like ``grep``, ``sed``, ``awk``, ``tr``, ``sort``, etc., they
 are all designed to go over text files line by line and do... something
 with the content of that line. Any shell scripter knows that these
-"files" are always really files. Often as not, it's really dealing with
-the output of another process, and not a file at all. Whatever the
+"files" aren't always really files. Often as not, it's really dealing
+with the output of another process and not a file at all. Whatever the
 source, the organizing principle is streams of text divided by newline
 characters. In Python, this is what we'd call a "file-like object."
 
