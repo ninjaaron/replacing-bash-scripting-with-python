@@ -116,12 +116,15 @@ choose one that you like and is widely available on Linux and other
 \*nix operating systems.
 
 They main reason I would recommend Python is if you already know it. If
-you don't know anything besides BASH, Python is a reasonable choice for
-your next language. It has a lot of mature, fast third-party libraries
-in a lot of domains. That's the main reason that matters to me.
+you don't know anything besides BASH (or BASH and lower-level languages
+like C or even Java), Python is a reasonable choice for your next
+language. It has a lot of mature, fast third-party libraries in a lot of
+domains -- science, math, web, machine learning, etc. It's also
+generally considered easy to learn and has become a major teaching
+language.
 
 The other very compelling reason to learn Python is that it is the
-language covered in this tutorial.
+language covered in this very compelling tutorial.
 
 Learn Python
 ------------
@@ -169,3 +172,18 @@ Because the idea of working with text streams is so central to Unix
 programming, we start this tutorial the basics of working with text
 files and will go from there to other streams you might want to work
 with.
+
+One handy thing in the shell is that you never really need file handles.
+The file name is typically all you have to type to loop over lines in a
+file would be something like:
+
+.. code:: Bash
+
+  while read line; do
+      stuff with $line
+  done < my_file.txt
+
+(Don't use this code. You actually have to do some things with $IFS to
+make it safe. Don't use any of my Bash examples. Don't use Bash! The
+proper one is ``while IFS= read -r line``, but that just raises more
+questions.)
