@@ -415,6 +415,9 @@ mapping, so:
   >>> os.environ['HOME']
   '/home/ninjaaron'
 
+
+TODO: add details about config files here.
+
 Filesystem Stuff
 ----------------
 Paths
