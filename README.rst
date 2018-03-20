@@ -158,6 +158,12 @@ dead, just that its maintainers might not know it yet.
 
 .. _official tutorial: https://docs.python.org/3/tutorial/index.html
 
+One last note about this tutorial: It doesn't explain *so much*. I have
+no desire to rewrite things that are already in the official
+documentation. It frequently just points to the relevant documentation
+for those wishing to do the kinds of tasks that Bash scripting is
+commonly used for.
+
 Reading and Writing Files
 -------------------------
 If you're going to do any kind of administration or automation on a Unix
@@ -251,8 +257,12 @@ a file at once like this:
       ## or with newline characters removed
       lines = my_file.read().splitlines()
 
-      ## This code wouldn't actually run because the file hasn't been
-      ## rewound to the beginning after it's been read through.
+  ## This code wouldn't actually run because the file hasn't been
+  ## rewound to the beginning after it's been read through.
+
+  ## Also not: list(my_file). Any function that takes an iterable can
+  ## take a file object.
+
 
 
 You can also open files for writing with, like this:
@@ -311,7 +321,7 @@ read from your scripts ``stdin``. In Bash you'd write:
 
 .. code:: Bash
 
-  while read line; do # <- not actually safe
+  while read line; do # <- not actually safe. Don't use bash.
       stuff with "$line"
   done
 
@@ -323,7 +333,7 @@ In Python, that looks like this:
   for line in sys.stdin:
       do_stuff_with(line) # <- we didn't remove the newline char this
                           #    time. Just mentioning it because it's a
-                          #    difference between python and shell
+                          #    difference between python and shell.
 
 Naturally, you can also slurp stdin in one go -- though this isn't the
 most Unix-y design choice, and you could use up your RAM with a very
@@ -339,12 +349,186 @@ but you'll typically just use the ``print()`` function.
 
 .. code:: Python
 
-  sys.stdout.write('Hello, stdout.\n')
-  # ^ functionally same as:
   print("Hello, stdout.")
+  # ^ functionally same as:
+  sys.stdout.write('Hello, stdout.\n')
 
-..
-  Anything you print can be piped to another process. Pipelines are great.
-  For stderr, it's a similar story:
+Anything you print can be piped to another process. Pipelines are great.
+For stderr, it's a similar story:
 
+.. code:: Python
 
+  print('a logging message.', file=sys.stderr)
+  # or:
+  sys.stderr.write('a logging message.\n')
+
+If you want more advanced logging functions, check out the `logging
+module`_.
+
+.. _logging module: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
+
+CLI Arguments
++++++++++++++
+Arguments are passed to your program as a list which you can access
+using ``sys.argv``. This is a bit like ``$@`` in Bash, or ``$1 $2
+$3...`` etc. e.g.:
+
+.. code:: bash
+
+  for arg in "$@"; do
+      stuff with "$arg"
+  done
+
+looks like this in Python:
+
+.. code:: Python
+
+  import sys
+  for arg in sys.argv[1:]:
+      do_stuff_with(arg)
+
+Why ``sys.argv[1:]``? ``sys.argv[0]`` is like ``$0`` in Bash or
+``argv[0]`` in C. It's the name of the executable. Just a refresher
+(because you read the tutorial, right?) ``a_list[1:]`` is list-slice
+syntax that returns a new list starting on the second item of
+``a_list``, going through to the end.
+
+If you want to build a more complete set of flags and arguments for a
+CLI program, the standard library module for that is argparse_. The
+tutorial leaves out some useful info, so here's the `API docs`_. click_
+is a popular and powerful third-party module for building even more
+advanced CLI interfaces.
+
+.. _argparse: https://docs.python.org/3/howto/argparse.html
+.. _API docs: https://docs.python.org/3/library/argparse.html
+.. _click: http://click.pocoo.org/5/
+
+Environment Variables, Config files, etc.
++++++++++++++++++++++++++++++++++++++++++
+Ok, environment variables and config files aren't necessarily only part
+of a CLI interfaces, but they are part of the user interface in general,
+so I stuck them here. Environment variables are in the ``os.environ``
+mapping, so:
+
+.. code:: Python
+
+  >>> os.environ['HOME']
+  '/home/ninjaaron'
+
+Filesystem Stuff
+----------------
+Paths
++++++
+So far, we've only seen paths as strings being passed to the ``open()``
+function. You can certainly use strings for your paths, and the ``os``
+and ``os.path`` modules contain a lot of portable functions for
+manipulating paths as strings. However, since Python 3.4, we have
+pathlib.Path_, a portable, abstract type for dealing with file paths,
+which will be the focus of path manipulation in this tutorial.
+
+.. _pathlib.Path: https://docs.python.org/3/library/pathlib.html#basic-use
+
+.. code:: Python
+
+  >>> from pathlib import Path
+  >>> # make a path of the current directory
+  >>> p = Path()
+  >>> p
+  PosixPath('.')
+  >>> # iterate over directory contents
+  >>> list(p.iterdir())
+  [PosixPath('.git'), PosixPath('out.html'), PosixPath('README.rst')]
+  >>> # use filename globbing
+  >>> list(p.glob('*.rst'))
+  [PosixPath('README.rst')]
+  >>> # get the full path
+  >>> p = p.absolute()
+  >>> p
+  PosixPath('/home/ninjaaron/doc/replacing-bash-scripting-with-python')
+  >>> # get the basename of the file
+  >>> p.name
+  'replacing-bash-scripting-with-python'
+  >>> # name of the parent directory
+  >>> p.parent
+  PosixPath('/home/ninjaaron/doc')
+  >>> # split path into its parts.
+  >>> p.parts
+  ('/', 'home', 'ninjaaron', 'doc', 'replacing-bash-scripting-with-python')
+  >>> # do some tests about what the path is or isn't.
+  >>> p.is_dir()
+  True
+  >>> p.is_file()
+  False
+  # more detailed file stats.
+  >>> p.stat()
+  os.stat_result(st_mode=16877, st_ino=16124942, st_dev=2051, st_nlink=3, st_uid=1000, st_gid=100, st_size=4096, st_atime=1521557933, st_mtime=1521557860, st_ctime=1521557860)
+  >>> # create new child paths with slash.
+  >>> readme = p/'README.rst'
+  >>> readme
+  PosixPath('/home/ninjaaron/doc/replacing-bash-scripting-with-python/README.rst')
+  >>> # open files
+  >>> with readme.open() as file_handle:
+  ...     pass
+  
+Again, check out the documentation for more info. pathlib.Path_. Since
+``pathlib`` came out, more and more builtin functions and functions in
+the standard library that take a path name as a string argument can also
+take a ``Path`` instance. If you find a function that doesn't, or you're
+on an older version of Python, you can always get a string for a path
+that is correct for your platform by by using ``str(my_path)``. If you
+need a file operation that isn't provided by the ``Path`` instance,
+check the docs for os.path_ and os_ and see if they can help you out. In
+fact, os_ is always a good place to look if you're doing system-level
+stuff with permissions and uids and so forth.
+
+.. _os.path: https://docs.python.org/3/library/os.path.html
+.. _os: https://docs.python.org/3/library/os.html
+
+Replacing miscellaneous file operations: ``shutil``
++++++++++++++++++++++++++++++++++++++++++++++++++++
+There are certain file operations which are really easy in the shell,
+but less nice than you might think if you're using python file objects
+or the basic system calls in the ``os`` module. Sure, you can rename a
+file with ``os.rename()``, but if you use ``mv`` in the shell, it will
+check if you're moving to a different file system, and if so, copy the
+data and delete the source -- and it can do that recursively without
+much fuss. shutil_ is the standard library module that fills in the
+gaps. The docstring gives a good summary: "Utility functions for copying
+and archiving files and directory trees."
+
+.. _shutil: https://docs.python.org/3/library/shutil.html
+
+Here's the overview:
+
+.. code:: Python
+  
+  >>> import shutil
+  # $ shell version
+  # >>> python version
+  $ mv src dest
+  >>> shutil.move('src', 'dest')
+  $ cp src dest
+  >>> shutil.copy2('src', 'dest')
+  $ cp -r src dest
+  >>> shutil.copytree('src', 'dest')
+  $ rm a_file
+  >>> os.remove('a_file') # ok, that's not shutil
+  $ rm -r a_dir
+  >>> shutil.rmtree('a_dir')
+
+That's the thousand-foot view of the high-level functions you'll
+normally be using. The module documentation is pretty good for examples,
+but it also has a lot of details about the functions used to implement
+the higher-level stuff I've shown, which may or may not be interesting.
+``shutil`` also has a nice wrapper function for creating zip and tar
+archives with various compression algorithms, ``shutil.make_archive()``.
+Worth a look, if you're into that sort of thing.
+
+I should probably also mention ``os.link`` and ``os.symlink`` at this
+point. They create hard and soft links respectively (like ``link`` and
+``link -s`` in the shell). ``Path`` instances also have
+``.symlink_to()`` method, if you want that.
+
+Replacing ``sed``, ``grep``, ``awk``, etc: Python regex
+-------------------------------------------------------
+In progress...
