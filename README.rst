@@ -503,7 +503,7 @@ and archiving files and directory trees."
 
 Here's the overview:
 
-.. code:: Python
+.. code::
   
   >>> import shutil
   # $ shell version
