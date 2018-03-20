@@ -3,6 +3,8 @@ Replacing Bash Scripting with Python
 
 .. contents::
 
+Introduction
+------------
 The Unix shell is one of my favorite inventions ever. It's genius, plain
 and simple. The idea is that the user environment is a Turing-complete,
 declarative programming language. It has a dead-simple model for dealing
@@ -13,10 +15,10 @@ For problems where the data can be expressed as a stream of similar
 objects separated by newlines to be processed concurrently through a
 series of filters and handles a lot of I/O, it's difficult to think of a
 more ideal language than the shell. A lot of the core parts on a Unix or
-Linux system are designed to express data in such formats
+Linux system are designed to express data in such formats.
 
 If the Shell is so great, what's the problem?
----------------------------------------------
++++++++++++++++++++++++++++++++++++++++++++++
 The problem is if you want to do basically anything else, e.g. write
 logic, use control structures, handle complex data... You're going
 to have big problems. When Bash is coordinating external programs, it's
@@ -98,7 +100,7 @@ you want people who maintain your code in the future not to curse your
 name? Don't use Bash. Do your part in the battle against mental illness.
 
 Why Python?
------------
++++++++++++
 No particular reason. Perl and Ruby are also flexible, easy-to-write
 languages that have robust support for administrative scripting and
 automation. I would recommend against Perl for beginners because it has
@@ -127,7 +129,7 @@ The other very compelling reason to learn Python is that it is the
 language covered in this very compelling tutorial.
 
 Learn Python
-------------
+++++++++++++
 This tutorial isn't going to teach you the Python core language, though
 a few built-in features will be covered. If you need to learn it, I
 highly recommend the `official tutorial`_, at least through chapter 5.
@@ -156,8 +158,8 @@ dead, just that its maintainers might not know it yet.
 
 .. _official tutorial: https://docs.python.org/3/tutorial/index.html
 
-Working with Files
-------------------
+Reading and Writing Files
+-------------------------
 If you're going to do any kind of administration or automation on a Unix
 system, the idea of working with files is pretty central. The great
 coreutils like ``grep``, ``sed``, ``awk``, ``tr``, ``sort``, etc., they
@@ -180,10 +182,169 @@ file would be something like:
 .. code:: Bash
 
   while read line; do
-      stuff with $line
+      stuff with "$line"
   done < my_file.txt
 
 (Don't use this code. You actually have to do some things with $IFS to
 make it safe. Don't use any of my Bash examples. Don't use Bash! The
 proper one is ``while IFS= read -r line``, but that just raises more
 questions.)
+
+In Python, you need to turn a path into a file object. The above loop
+would be something like this:
+
+.. code:: Python
+
+  with open('my_file.txt') as my_file:
+      for line in my_file:
+          do_stuff_with(line.rstrip())
+          ## the .rstrip() method is optional. It removes trailing
+          ## whitespace from the line.
+
+Let's take that apart.
+
+The ``open()`` function returns a file object. If you just send it the
+path name as a string, it's going to assume it's a text file in the
+default system encoding (UTF-8, right?), and it is opened only for
+reading. You can, of course, do ``my_file = open('my_file.txt')`` as
+well. When you use ``with x as y:`` instead of asignment, it ensures the
+object is properly cleaned up when the block is exited using something
+called a "context manager". You can do ``my_file.close()`` manually, but
+the ``with`` block will ensure that happens even you hit an error
+without having to write a lot of extra code.
+
+The gross thing about context managers is that that they add an extra
+level of indentation. Here's a helper function you can use to open a
+context manager for something you want cleaned up after you loop.
+
+.. code:: Python
+
+  def iter_with(obj):
+      with obj:
+          yield from obj
+
+and then you use it like:
+
+.. code:: Python
+
+  for line in iter_with(open('my_file.txt')):
+      do_stuff_with(line)
+
+``yield from`` means it's a `generator function`_, and it's
+handing over control to a sub-iterator (the file object, in this case)
+until that iterator runs out of things to return. Don't worry if that
+doesn't make sense. It's a more advanced Python topic and not necessary
+for administrative scripting.
+
+.. _generator function: https://docs.python.org/3/tutorial/classes.html#generators
+
+If you don't want to iterate on lines, which is the most memory
+efficient way to deal with text files, you can slurp entire contents of
+a file at once like this:
+
+.. code:: Python
+
+  with open('my_file.txt') as my_file:
+      file_text = my_file.read()
+      ## or
+      lines = list(my_file)
+      ## or with newline characters removed
+      lines = my_file.read().splitlines()
+
+      ## This code wouldn't actually run because the file hasn't been
+      ## rewound to the beginning after it's been read through.
+
+
+You can also open files for writing with, like this:
+
+.. code:: Python
+
+  with open('my_file.txt', 'w') as my_file:
+      my_file.write('some text\n')
+      my_file.writelines(['a\n', 'b\n', 'c\n'])
+      print('another line', file=my_file)        # print adds a newline.
+
+
+The second argument of ``open()`` is the *mode*. The default mode is
+``'r'``, which opens the file for reading text. ``'w'`` deletes
+everything in the file (or creates it if it doesn't exist) and opens it
+for writing. You can also use the mode ``'a'``. This goes to the end of
+a file and adds text there. In shell terms, ``'r'`` is a bit like ``<``,
+``'w'`` is a bit like ``>``, and ``'a'`` is a bit like ``>>``.
+
+This is just the beginning of what you can do with files. If you want to
+know all their methods and modes, check the official tutorial_.
+File objects provide a lot of cool interfaces. These interfaces will
+come back with other "file-like objects" which will come up many times
+later, including in the very next section.
+
+.. _tutorial: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
+
+CLI interfaces in Python
+------------------------
+
+Working with ``stdin``, ``stdout`` and ``stderr``
++++++++++++++++++++++++++++++++++++++++++++++++++
+Unix scripting is all about filtering text streams. You have a stream
+that comes from lines in a file or output of a program, and you pipe it
+through other programs. It has a bunch of special-purpose programs just
+for filtering text (some of the more popular of which are enumerated at
+the beginning of the previous chapter). Great cli scripts should follow
+the same pattern so you can incorperate them into your shell pipelines.
+You can, of course, write your script with it's own "interactive"
+interface and read lines of user input one at a time:
+
+.. code:: Python
+
+  username = input('What is your name? ')
+
+This is fine in some cases, but it doesn't really promote the creation
+of reusable, multi-purpose filters. With that in mind, allow me to
+introduce the ``sys`` module.
+
+The ``sys`` module has all kinds of great things as well as all kinds of
+things you shouldn't really be messing with. We're going to start with
+``sys.stdin``.
+
+``sys.stdin`` is a file-like object that, you guessed it, allows you to
+read from your scripts ``stdin``. In Bash you'd write:
+
+.. code:: Bash
+
+  while read line; do # <- not actually safe
+      stuff with "$line"
+  done
+
+In Python, that looks like this:
+
+.. code:: Python
+
+  import sys
+  for line in sys.stdin:
+      do_stuff_with(line) # <- we didn't remove the newline char this
+                          #    time. Just mentioning it because it's a
+                          #    difference between python and shell
+
+Naturally, you can also slurp stdin in one go -- though this isn't the
+most Unix-y design choice, and you could use up your RAM with a very
+large file:
+
+.. code:: Python
+
+  text = sys.stdin.read()
+
+As far as stdout is concerned, you can access it directly if you like,
+but you'll typically just use the ``print()`` function.
+
+
+.. code:: Python
+
+  sys.stdout.write('Hello, stdout.\n')
+  # ^ functionally same as:
+  print("Hello, stdout.")
+
+..
+  Anything you print can be piped to another process. Pipelines are great.
+  For stderr, it's a similar story:
+
+
