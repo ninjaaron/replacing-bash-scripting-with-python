@@ -177,7 +177,7 @@ source, the organizing principle is streams of text divided by newline
 characters. In Python, this is what we'd call a "file-like object."
 
 Because the idea of working with text streams is so central to Unix
-programming, we start this tutorial the basics of working with text
+programming, we start this tutorial with the basics of working with text
 files and will go from there to other streams you might want to work
 with.
 
@@ -229,7 +229,7 @@ context manager for something you want cleaned up after you loop.
       with obj:
           yield from obj
 
-and then you use it like:
+and then you use it like this:
 
 .. code:: Python
 
@@ -244,9 +244,9 @@ for administrative scripting.
 
 .. _generator function: https://docs.python.org/3/tutorial/classes.html#generators
 
-If you don't want to iterate on lines, which is the most memory
-efficient way to deal with text files, you can slurp entire contents of
-a file at once like this:
+If you don't want to iterate on lines, which is the most
+memory-efficient way to deal with text files, you can slurp entire
+contents of a file at once like this:
 
 .. code:: Python
 
@@ -260,7 +260,7 @@ a file at once like this:
   ## This code wouldn't actually run because the file hasn't been
   ## rewound to the beginning after it's been read through.
 
-  ## Also not: list(my_file). Any function that takes an iterable can
+  ## Also note: list(my_file). Any function that takes an iterable can
   ## take a file object.
 
 
@@ -317,7 +317,7 @@ things you shouldn't really be messing with. We're going to start with
 ``sys.stdin``.
 
 ``sys.stdin`` is a file-like object that, you guessed it, allows you to
-read from your scripts ``stdin``. In Bash you'd write:
+read from your script's ``stdin``. In Bash you'd write:
 
 .. code:: Bash
 
@@ -406,7 +406,7 @@ advanced CLI interfaces.
 Environment Variables, Config files, etc.
 +++++++++++++++++++++++++++++++++++++++++
 Ok, environment variables and config files aren't necessarily only part
-of a CLI interfaces, but they are part of the user interface in general,
+of CLI interfaces, but they are part of the user interface in general,
 so I stuck them here. Environment variables are in the ``os.environ``
 mapping, so:
 
@@ -472,6 +472,9 @@ which will be the focus of path manipulation in this tutorial.
   >>> # open files
   >>> with readme.open() as file_handle:
   ...     pass
+  >>> # make file executable with mode bits
+  >>> readme.chmod(0o755)
+  >>> # ^ note that octal notation is must be explicite.
   
 Again, check out the documentation for more info. pathlib.Path_. Since
 ``pathlib`` came out, more and more builtin functions and functions in
@@ -486,6 +489,15 @@ stuff with permissions and uids and so forth.
 
 .. _os.path: https://docs.python.org/3/library/os.path.html
 .. _os: https://docs.python.org/3/library/os.html
+
+Oh. Almost forgot. ``p.stat()``, as you can see, returns an
+os.stat_result_ instance. One thing to be aware of is that the
+``st_mode``, (i.e. permissions bits) are represented as an integer, so
+you might need to do something like ``oct(p.stat().st_mode)`` to show
+what that number will look like in octal, which is how you set it with
+``chmod`` in the shell.
+
+.. _os.stat_result: https://docs.python.org/3/library/os.html#os.stat_result
 
 Replacing miscellaneous file operations: ``shutil``
 +++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -503,26 +515,24 @@ and archiving files and directory trees."
 
 Here's the overview:
 
-.. code::
+.. code:: Python
   
   >>> import shutil
-  # $ shell version
-  # >>> python version
-  $ mv src dest
+  >>> # $ mv src dest
   >>> shutil.move('src', 'dest')
-  $ cp src dest
+  >>> # $ cp src dest
   >>> shutil.copy2('src', 'dest')
-  $ cp -r src dest
+  >>> # $ cp -r src dest
   >>> shutil.copytree('src', 'dest')
-  $ rm a_file
+  >>> # $ rm a_file
   >>> os.remove('a_file') # ok, that's not shutil
-  $ rm -r a_dir
+  >>> # $ rm -r a_dir
   >>> shutil.rmtree('a_dir')
 
 That's the thousand-foot view of the high-level functions you'll
 normally be using. The module documentation is pretty good for examples,
 but it also has a lot of details about the functions used to implement
-the higher-level stuff I've shown, which may or may not be interesting.
+the higher-level stuff I've shown which may or may not be interesting.
 ``shutil`` also has a nice wrapper function for creating zip and tar
 archives with various compression algorithms, ``shutil.make_archive()``.
 Worth a look, if you're into that sort of thing.
