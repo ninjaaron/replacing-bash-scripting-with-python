@@ -703,7 +703,7 @@ in a line.
   >>> # awk -F : '{print $1}'
   >>> field1 = (f[0] for f in (s.split(':') for s in ics))
   >>> # awk -F '[^a-zA-Z]' '{print $1}'
-  >>> field1 = (f[0] for f in (re.split(r'[a-zA-Z]', s) for s in ics))
+  >>> field1 = (f[0] for f in (re.split(r'[^a-zA-Z]', s) for s in ics))
 
 Running Processes
 -----------------
