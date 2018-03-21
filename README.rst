@@ -691,7 +691,7 @@ this to be very useful.
 How to ``awk``
 ++++++++++++++
 The ``sed`` section needed a little disclaimer. The ``awk`` section
-needs a bigger one. AWK is a Turing complete text-processing language.
+needs a bigger one. AWK is a Turing-complete text-processing language.
 I'm not going to cover how to do everything AWK can do with Python
 idioms. I'm just going to cover the simple case of working with fields
 in a line, as it is commonly used in shell scripts and on the command
@@ -718,9 +718,9 @@ Running Processes
 
 I come to this section at the end of the tutorial because one
 generally *should not be running a lot of processes inside of a Python
-script*. However, if there are plenty of times when this "rule" should
-be broken. Say you want to do some automation with your package
-manager; you'd be nuts not to use ``apt`` or ``yum`` (spelled ``dnf``
+script*. However, there are plenty of times when this "rule" should be
+broken. Say you want to do some automation with packages on your
+system; you'd be nuts not to use ``apt`` or ``yum`` (spelled ``dnf``
 these days) or whatever your package manager is. Same applies if
 you're doing ``mkfs`` or using a very mature and featureful program
 like ``rsync``. My general rule is that any kind of filtering utility
@@ -728,7 +728,8 @@ should be avoided, but specialized programs for manipulating the
 system are fair game -- However, in some cases, there will be a
 3rd-party Python library that provides a wrapper on the underlying C
 code. The library will, of course, be faster than spawning a new
-process in most cases. Use your best judgement.
+process in most cases. Use your best judgement. Be extra judicious if
+you're trying to write re-usable library code.
 
 There are a number of functions which shall not be named in the os_
 module that can be used to spawn processes. They have a variety of
@@ -736,12 +737,11 @@ problems. Some run processes in subshells (c.f. injection
 vulnerabilities). Some are thin wrappers on system calls in libc,
 which you may want to use if you implement your own processes library,
 but are not particularly fun to use. Some are simply older interfaces
-left in for legacy reasons, which have actually been re-implemented
-underneith on top of the new module you're supposed to use,
-subprocess_. For administrative scripting, just use ``subprocess``
-directly.
+left in for legacy reasons, which have actually been re-implemented on
+top of the new module you're supposed to use, subprocess_. For
+administrative scripting, just use ``subprocess`` directly.
 
-This tutorial focuses on using the Popen_ type and the run_, the
+This tutorial focuses on using the Popen_ type and the run_ function, the
 latter of which was only added in Python 3.5. If You are using Python
 3.4 or earlier, you need to use the `old API`_, though a lot of what
 is said here will still be relevant.
