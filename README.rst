@@ -682,6 +682,12 @@ also be done in Python.
   >>> # sed 's/pattern/replacement/' -- needs regex
   >>> replaced = (re.sub(r'pattern', r'replacement', s) for s in ics)
 
+re.sub_ has a lot of additional features, including the ability to use a
+*function instead of a string* for the replacement argument. I consider
+this to be very useful.
+
+.. _re.sub https://docs.python.org/3/library/re.html#re.sub
+
 How to ``awk``
 ++++++++++++++
 The ``sed`` section needed a little disclaimer. The ``awk`` section
