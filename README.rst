@@ -2,8 +2,10 @@ Replacing Bash Scripting with Python
 ====================================
 
 If I didn't cover something you want to know about or you find another
-problem, please open an issue on github!
-https://github.com/ninjaaron/replacing-bash-scripting-with-python
+problem, please open an issue on github_!
+
+.. _github:
+  https://github.com/ninjaaron/replacing-bash-scripting-with-python
 
 .. contents::
 
