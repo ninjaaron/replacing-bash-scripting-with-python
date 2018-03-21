@@ -189,9 +189,9 @@ programming, we start this tutorial with the basics of working with text
 files and will go from there to other streams you might want to work
 with.
 
-One handy thing in the shell is that you never really need file handles.
-The file name is typically all you have to type to loop over lines in a
-file would be something like:
+One handy thing in the shell is that you never really need file
+handles.  All you have to type to loop over lines in a file would be
+something like:
 
 .. code:: Bash
 
@@ -516,7 +516,7 @@ check the docs for os.path_ and os_ and see if they can help you out. In
 fact, os_ is always a good place to look if you're doing system-level
 stuff with permissions and uids and so forth.
 
-If you're doing globbing with a ``Path`` instace, be aware that, like
+If you're doing globbing with a ``Path`` instance, be aware that, like
 ZSH, ``**`` may be used to glob recursively. It also (unlike the shell)
 will included hidden files (files whose names begin with a dot). Given
 this and the other kinds of attribute testing you can do on ``Path``
@@ -596,23 +596,23 @@ also have a `regex HOWTO`_, but it seems more geared towards people who
 may not be experienced with regex.)
 
 This section is for people who know how to use programs like ``sed``,
-``grep`` and ``awk`` and wish to get similar results in Python. One
-thing is that writing simple text filters in Python will never be as
-elegant as it is in Perl, since Perl was more or less created to be like
-a super-powered version of the ``sh`` + ``awk`` + ``sed``. The same
-thing can sort of be said of ``awk``, the original text-filtering
-language on Unix. The main reason to use Python for these tasks is that
-the project is going to scale a lot more easily when you want to do
-something a bit more complex.
+``grep`` and ``awk`` and wish to get similar results in Python. I
+admit that writing simple text filters in Python will never be as
+elegant as it is in Perl, since Perl was more or less created to be
+like a super-powered version of the ``sh`` + ``awk`` + ``sed``. The
+same thing can sort of be said of ``awk``, the original text-filtering
+language on Unix. The main reason to use Python for these tasks is
+that the project is going to scale a lot more easily when you want to
+do something a bit more complex.
 
-One thing to be aware of is that Python is more like PCRE (Perl-style)
-than BRE or ERE that most shell utilities support. If you mostly do
-``sed`` or ``grep`` without the ``-E`` option, you may want to look at
-the rules for Python regex (BRE is the regex dialect you know). If
-you're used to writing regex for ``awk`` or ``egrep`` (ERE), Python
-regex is more or less a superset of what you know. You still may want to
-look at the documentation for some of the more advanced things you can
-do.
+One thing to be aware of is that Python's regex is more like PCRE
+(Perl-style) than BRE or ERE that most shell utilities support. If you
+mostly do ``sed`` or ``grep`` without the ``-E`` option, you may want
+to look at the rules for Python regex (BRE is the regex dialect you
+know). If you're used to writing regex for ``awk`` or ``egrep`` (ERE),
+Python regex is more or less a superset of what you know. You still
+may want to look at the documentation for some of the more advanced
+things you can do.
 
 .. _re: https://docs.python.org/3/library/re.html
 .. _regex HOWTO: https://docs.python.org/3/howto/regex.html
