@@ -1,6 +1,10 @@
 Replacing Bash Scripting with Python
 ====================================
 
+If I didn't cover something you want to know about or you find another
+problem, please open an issue on github!
+https://github.com/ninjaaron/replacing-bash-scripting-with-python
+
 .. contents::
 
 Introduction
@@ -206,8 +210,9 @@ would be something like this:
   with open('my_file.txt') as my_file:
       for line in my_file:
           do_stuff_with(line.rstrip())
-          ## the .rstrip() method is optional. It removes trailing
-          ## whitespace from the line.
+
+  ## the .rstrip() method is optional. It removes trailing whitespace
+  ## from the line (including the newline character).
 
 Let's take that apart.
 
@@ -301,13 +306,13 @@ CLI interfaces in Python
 Working with ``stdin``, ``stdout`` and ``stderr``
 +++++++++++++++++++++++++++++++++++++++++++++++++
 Unix scripting is all about filtering text streams. You have a stream
-that comes from lines in a file or output of a program, and you pipe it
-through other programs. It has a bunch of special-purpose programs just
-for filtering text (some of the more popular of which are enumerated at
-the beginning of the previous chapter). Great cli scripts should follow
-the same pattern so you can incorperate them into your shell pipelines.
-You can, of course, write your script with it's own "interactive"
-interface and read lines of user input one at a time:
+that comes from lines in a file or output of a program and you pipe it
+through other programs. Unix has a bunch of special-purpose programs
+just for filtering text (some of the more popular of which are
+enumerated at the beginning of the previous chapter). Great cli scripts
+should follow the same pattern so you can incorperate them into your
+shell pipelines.  You can, of course, write your script with it's own
+"interactive" interface and read lines of user input one at a time:
 
 .. code:: Python
 
@@ -510,7 +515,7 @@ fact, os_ is always a good place to look if you're doing system-level
 stuff with permissions and uids and so forth.
 
 If you're doing globbing with a ``Path`` instace, be aware that, like
-ZSH, ``**`` may be used to glob recursively. It also, (unlike the shell)
+ZSH, ``**`` may be used to glob recursively. It also (unlike the shell)
 will included hidden files (files whose names begin with a dot). Given
 this and the other kinds of attribute testing you can do on ``Path``
 instances, it can do a lot of of the kinds of stuff ``find`` can do.
@@ -531,8 +536,8 @@ what that number will look like in octal, which is how you set it with
   https://docs.python.org/3/library/pathlib.html#basic-use
 .. _os.path: https://docs.python.org/3/library/os.path.html
 .. _os: https://docs.python.org/3/library/os.html
-
-.. _os.stat_result: https://docs.python.org/3/library/os.html#os.stat_result
+.. _os.stat_result:
+  https://docs.python.org/3/library/os.html#os.stat_result
 
 Replacing miscellaneous file operations: ``shutil``
 +++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -579,8 +584,123 @@ point. They create hard and soft links respectively (like ``link`` and
 
 Replacing ``sed``, ``grep``, ``awk``, etc: Python regex
 -------------------------------------------------------
-In progress...
+This section is not so much for experienced programmers who already know
+more or less how to use regexes for matching and string manipulation in
+other "normal" languages. Python is not so exceptional in this regard,
+though if you're used to JavaScript, Ruby, Perl and others, you may be
+surprised to find that Python doesn't have regex literals. The regex
+functionally is all encapsulated in the re_ module. (The official docs
+also have a `regex HOWTO`_, but it seems more geared towards people who
+may not be experienced with regex.)
+
+This section is for people who know how to use programs like ``sed``,
+``grep`` and ``awk`` and wish to get similar results in Python. One
+thing is that writing simple text filters in Python will never be as
+elegant as it is in Perl, since Perl was more or less created to be like
+a super-powered version of the ``sh`` + ``awk`` + ``sed``. The same
+thing can sort of be said of ``awk``, the original text-filtering
+language on Unix. The main reason to use Python for these tasks is that
+the project is going to scale a lot more easily when you want to do
+something a bit more complex.
+
+One thing to be aware of is that Python is more like PCRE (Perl-style)
+than BRE or ERE that most shell utilities support. If you mostly do
+``sed`` or ``grep`` without the ``-E`` option, you may want to look at
+the rules for Python regex (BRE is the regex dialect you know). If
+you're used to writing regex for ``awk`` or ``egrep`` (ERE), Python
+regex is more or less a superset of what you know. You still may want to
+look at the documentation for some of the more advanced things you can
+do.
+
+.. _re: https://docs.python.org/3/library/re.html
+.. _regex HOWTO: https://docs.python.org/3/howto/regex.html
+
+How to ``grep``
++++++++++++++++
+If you don't need pattern matching (i.e. something you could do with
+``fgrep``), you don't need regex to match a substring. You can simply
+use builtin syntax:
+
+.. code:: python
+
+  >>> 'substring' in 'string containing substring'
+  True
+
+Otherwise, you need the regex module to match things:
+
+.. code:: python
+
+  >>> import re
+  >>> re.search(r'a pattern', r'string containing a pattern')
+  <_sre.SRE_Match object; span=(18, 27), match='a pattern'>
+  >>> re.search(r'a pattern', r'string without the pattern')
+  >>> # Returns None, which isn't printed in the the Python REPL
+
+I'm not going to go into the details of the "match object" that the
+is returned at the moment. The main thing for now is that it evaluates
+to ``True`` in a boolean context. You may also notice I use raw strings
+``r''``. This is to keep Python's normal escape sequences from being
+interpreted, since regex uses its own escapes.
+
+So, to use these to filter through strings:
+
+.. code:: Python
+
+  >>> ics = an_iterable_containing_strings
+  >>> # like fgrep
+  >>> filtered = (s for s in ics if substring in s)
+  >>> # like grep (or, more like egrep)
+  >>> filtered = (s for s in ics if re.search(pattern, s))
+
+``an_iterable_containing_strings`` here could be a list, a generator or
+even a file/file-like object. Anything that will give you strings when
+you iterate on it. I use `generator expression`_ syntax here instead of
+a list comprehension because that means each result is produced as
+needed with lazy evaluation. This will save your RAM if you're working
+with a large file. You can invert the result, like ``grep -v`` simply by
+adding ``not`` to the ``if`` clause. There are also flags you can add to
+do things like ignore case (``flags=re.I``), etc. Check out the docs for
+more.
+
+.. _generator expression:
+  https://docs.python.org/3/tutorial/classes.html#generator-expressions
+
+
+How to ``sed``
+++++++++++++++
+Just a little tiny disclaimer: I know ``sed`` can do a lot of things and
+is really a "stream editor." I'm just covering how to do substitutions
+with Python, though, certainly, anything you can do with ``sed`` can
+also be done in Python.
+
+.. code:: Python
+
+  >>> # sed 's/a string/another string/' -- i.e. doesn't regex
+  >>> replaced = (s.replace('a string', 'another string') for s in ics)
+  >>> # sed 's/pattern/replacement/' -- needs regex
+  >>> replaced = (re.sub(r'pattern', r'replacement', s) for s in ics)
+
+How to ``awk``
+++++++++++++++
+The ``sed`` section needed a little disclaimer. The ``awk`` section
+needs a bigger one. AWK is a Turing complete text-processing language.
+I'm not going to cover how to do everything AWK can do with Python
+idioms. I'm just going to cover the simple case of working with fields
+in a line.
+
+.. code:: Python
+
+  >>> # awk '{print $1}'
+  >>> field1 = (f[0] for f in (s.split() for s in ics))
+  >>> # awk -F : '{print $1}'
+  >>> field1 = (f[0] for f in (s.split(':') for s in ics))
+  >>> # awk -F '[^a-zA-Z]' '{print $1}'
+  >>> field1 = (f[0] for f in (re.split(r'[a-zA-Z]', s) for s in ics))
 
 Running Processes
 -----------------
+in progress...
+
+HTTP requests
+-------------
 also in progress...
