@@ -74,7 +74,9 @@ interpolation syntax.
 
 .. code:: bash
 
-  $ for item in "${my_array[@]}"; do stuff with "$item"; done
+  for item in "${my_array[@]}"; do
+      stuff with "$item"
+  done
 
 Why would string interpolation syntax ever be used to iterate over items
 in an array? I have some theories, but they are only that. I could tell
@@ -156,13 +158,13 @@ Do not use Python 2. It will be officially retired in 2020. That's two
 years. If a library hasn't been ported to Python 3 yet, it's already
 dead, just that its maintainers might not know it yet.
 
-.. _official tutorial: https://docs.python.org/3/tutorial/index.html
-
 One last note about this tutorial: It doesn't explain *so much*. I have
 no desire to rewrite things that are already in the official
 documentation. It frequently just points to the relevant documentation
 for those wishing to do the kinds of tasks that Bash scripting is
 commonly used for.
+
+.. _official tutorial: https://docs.python.org/3/tutorial/index.html
 
 Reading and Writing Files
 -------------------------
@@ -242,8 +244,6 @@ until that iterator runs out of things to return. Don't worry if that
 doesn't make sense. It's a more advanced Python topic and not necessary
 for administrative scripting.
 
-.. _generator function: https://docs.python.org/3/tutorial/classes.html#generators
-
 If you don't want to iterate on lines, which is the most
 memory-efficient way to deal with text files, you can slurp entire
 contents of a file at once like this:
@@ -283,12 +283,17 @@ a file and adds text there. In shell terms, ``'r'`` is a bit like ``<``,
 ``'w'`` is a bit like ``>``, and ``'a'`` is a bit like ``>>``.
 
 This is just the beginning of what you can do with files. If you want to
-know all their methods and modes, check the official tutorial_.
+know all their methods and modes, check the official tutorial's section
+on `reading and writing files`_.
 File objects provide a lot of cool interfaces. These interfaces will
 come back with other "file-like objects" which will come up many times
 later, including in the very next section.
 
-.. _tutorial: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
+
+.. _generator function:
+  https://docs.python.org/3/tutorial/classes.html#generators
+.. _reading and writing files:
+  https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
 
 CLI interfaces in Python
 ------------------------
@@ -365,7 +370,8 @@ For stderr, it's a similar story:
 If you want more advanced logging functions, check out the `logging
 module`_.
 
-.. _logging module: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
+.. _logging module:
+  https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
 CLI Arguments
 +++++++++++++
@@ -403,8 +409,8 @@ advanced CLI interfaces.
 .. _API docs: https://docs.python.org/3/library/argparse.html
 .. _click: http://click.pocoo.org/5/
 
-Environment Variables, Config files, etc.
-+++++++++++++++++++++++++++++++++++++++++
+Environment Variables and Config files
+++++++++++++++++++++++++++++++++++++++
 Ok, environment variables and config files aren't necessarily only part
 of CLI interfaces, but they are part of the user interface in general,
 so I stuck them here. Environment variables are in the ``os.environ``
@@ -415,8 +421,26 @@ mapping, so:
   >>> os.environ['HOME']
   '/home/ninjaaron'
 
+As far as config files, in Bash, you frequently just do a bunch of
+variable assignments inside of a file and source it. You can also just
+write valid python files and import them as modules or eval them... but
+don't do that. Arbitrary code execution in a config file is generally
+not what you want.
 
-TODO: add details about config files here.
+The standard library includes configparser_, which is a parser for .ini
+files, and also a json_ parser. I don't really like the idea of
+human-edited json, but go ahead and shoot yourself in the foot if you
+want to. At least it's flexible.
+
+PyYaml_, the yaml parser, and toml_ are third-party libraries that are
+useful for configuration files. (Install ``pyyaml`` with pip. Don't
+download the tarball like the documentation suggests. I don't know why
+it says that.)
+
+.. _configparser: https://docs.python.org/3/library/configparser.html
+.. _json: https://docs.python.org/3/library/json.html
+.. _PyYaml: http://pyyaml.org/wiki/PyYAMLDocumentation
+.. _toml: https://github.com/uiri/toml
 
 Filesystem Stuff
 ----------------
@@ -428,8 +452,6 @@ and ``os.path`` modules contain a lot of portable functions for
 manipulating paths as strings. However, since Python 3.4, we have
 pathlib.Path_, a portable, abstract type for dealing with file paths,
 which will be the focus of path manipulation in this tutorial.
-
-.. _pathlib.Path: https://docs.python.org/3/library/pathlib.html#basic-use
 
 .. code:: Python
 
@@ -487,8 +509,16 @@ check the docs for os.path_ and os_ and see if they can help you out. In
 fact, os_ is always a good place to look if you're doing system-level
 stuff with permissions and uids and so forth.
 
-.. _os.path: https://docs.python.org/3/library/os.path.html
-.. _os: https://docs.python.org/3/library/os.html
+If you're doing globbing with a ``Path`` instace, be aware that, like
+ZSH, ``**`` may be used to glob recursively. It also, (unlike the shell)
+will included hidden files (files whose names begin with a dot). Given
+this and the other kinds of attribute testing you can do on ``Path``
+instances, it can do a lot of of the kinds of stuff ``find`` can do.
+
+
+.. code:: Python
+
+  >>> [p for p in Path().glob('**/*') if p.is_dir()]
 
 Oh. Almost forgot. ``p.stat()``, as you can see, returns an
 os.stat_result_ instance. One thing to be aware of is that the
@@ -496,6 +526,11 @@ os.stat_result_ instance. One thing to be aware of is that the
 you might need to do something like ``oct(p.stat().st_mode)`` to show
 what that number will look like in octal, which is how you set it with
 ``chmod`` in the shell.
+
+.. _pathlib.Path:
+  https://docs.python.org/3/library/pathlib.html#basic-use
+.. _os.path: https://docs.python.org/3/library/os.path.html
+.. _os: https://docs.python.org/3/library/os.html
 
 .. _os.stat_result: https://docs.python.org/3/library/os.html#os.stat_result
 
@@ -510,8 +545,6 @@ data and delete the source -- and it can do that recursively without
 much fuss. shutil_ is the standard library module that fills in the
 gaps. The docstring gives a good summary: "Utility functions for copying
 and archiving files and directory trees."
-
-.. _shutil: https://docs.python.org/3/library/shutil.html
 
 Here's the overview:
 
@@ -541,6 +574,8 @@ I should probably also mention ``os.link`` and ``os.symlink`` at this
 point. They create hard and soft links respectively (like ``link`` and
 ``link -s`` in the shell). ``Path`` instances also have
 ``.symlink_to()`` method, if you want that.
+
+.. _shutil: https://docs.python.org/3/library/shutil.html
 
 Replacing ``sed``, ``grep``, ``awk``, etc: Python regex
 -------------------------------------------------------
