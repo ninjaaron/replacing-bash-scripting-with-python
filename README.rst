@@ -636,7 +636,7 @@ Otherwise, you need the regex module to match things:
   >>> re.search(r'a pattern', r'string containing a pattern')
   <_sre.SRE_Match object; span=(18, 27), match='a pattern'>
   >>> re.search(r'a pattern', r'string without the pattern')
-  >>> # Returns None, which isn't printed in the the Python REPL
+  >>> # Returns None, which isn't printed in the Python REPL
 
 I'm not going to go into the details of the "match object" that the
 is returned at the moment. The main thing for now is that it evaluates
@@ -715,7 +715,6 @@ is given as a delimiter.
 
 Running Processes
 -----------------
-
 I come to this section at the end of the tutorial because one
 generally *should not be running a lot of processes inside of a Python
 script*. However, there are plenty of times when this "rule" should be
@@ -741,10 +740,50 @@ left in for legacy reasons, which have actually been re-implemented on
 top of the new module you're supposed to use, subprocess_. For
 administrative scripting, just use ``subprocess`` directly.
 
-This tutorial focuses on using the Popen_ type and the run_ function, the
-latter of which was only added in Python 3.5. If You are using Python
-3.4 or earlier, you need to use the `old API`_, though a lot of what
-is said here will still be relevant.
+This tutorial focuses on using the Popen_ constructor and the run_
+function, the latter of which was only added in Python 3.5. If You are
+using Python 3.4 or earlier, you need to use the `old API`_, though a
+lot of what is said here will still be relevant.
+
+The Popen_ API (over which the run_ function is a thin wrapper) is a
+very flexible, securely designed interface for running processes. Most
+importantly, it doesn't open a subshell by default. That's right; It's
+completely safe from shell injection vulnerabilities -- or, the
+injection vulnerabilities are opt-in. There's always the ``shell=True``
+option if you're determined to write bad code.
+
+On the other hand, it is a little cumbersome to work with, so there are a
+lot of third-party libraries to simplify it. Plumbum_ is probably the
+most popular of these. Sarge_ is also not bad. My own contribution to
+the field is easyproc_.
+
+There are also a couple of Python supersets that allow inlining shell
+commands in python code. xonsh_ is one, which also provides a fully
+function interactive system shell experience and is the program that
+runs every time I open a terminal. I highly recommend it! I've also
+tried my hand at a Python preprocessor that allows inlining commands,
+but it's sort of still in the works. You can search my github account if
+you're desperately interested in that. At present, the documentation is
+out of date.
+
+Anyway, on with the show.
+
+.. code:: Python
+
+  >>> import subprocess as sp
+  >>> sp.run(['ls', '-lh'])
+  total 104K
+  -rw-r--r-- 1 ninjaaron users 69K Mar 21 16:40 out.html
+  -rw-r--r-- 1 ninjaaron users 32K Mar 23 11:11 README.rst
+  CompletedProcess(args=['ls', '-lh'], returncode=0)
+
+As you see, the first and only required argument of the run function is
+a list (or any other iterable) of command arguments. stdout is not
+captured, it just goes wherever the stdout of the script goes. What is
+returned is a CompletedProcess instance, which has an ``args`` attribute
+and a ``returncode`` attribute. More attributes may also become
+available when certain keyword arguments are used with ``run``.
+
 
 More on the way...
 
@@ -756,3 +795,9 @@ More on the way...
   https://docs.python.org/3/library/subprocess.html#subprocess.run
 .. _old API:
   https://docs.python.org/3/library/subprocess.html#call-function-trio
+.. _Plumbum: https://plumbum.readthedocs.io/en/latest/
+.. _Sarge: http://sarge.readthedocs.io/en/latest/
+.. _easyproc: https://github.com/ninjaaron/easyproc
+.. _xonsh: http://xon.sh/
+
+
