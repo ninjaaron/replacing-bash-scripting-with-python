@@ -144,20 +144,21 @@ highly recommend the `official tutorial`_, at least through chapter 5.
 Through chapter 9 would be even better, and you might as well just read
 the whole thing at that point.
 
-If you're new to programming, you might try the book *Introducing
-Python* or perhaps *Think Python*. You may see a lot of recommendations
-for *Learn Python the Hard Way*. I think this method is flawed, though I
-do appreciate that it was written by someone with strong opinions about
-correctness, which has some benefits.
+If you're new to programming, you might try the book `Introducing
+Python`_ or perhaps `Think Python`_. `Dive Into Python`_ is another
+popular book that is available for free online. You may see a lot of
+recommendations for `Learn Python the Hard Way`_. I think this method is
+flawed, though I do appreciate that it was written by someone with
+strong opinions about correctness, which has some benefits.
 
 This tutorial assumes Python 3.5 or higher, though it may sometimes use
 idioms from 3.6, and I will attempt to document when have used an idiom
 which doesn't work in 3.4, which is apparently the version that ships
-with the latest CentOS and SLES. Use 3.6 if you can. It has some cool
-new features, but the implementation of dictionaries (Python's hash map)
-was also overhauled in this version of Python, which sort of undergirds
-the way the whole object system is implemented and therefore is a major
-win all around.
+with the latest CentOS and SLES. Use at least 3.6 if you can. It has
+some cool new features, but the implementation of dictionaries (Python's
+hash map) was also overhauled in this version of Python, which sort of
+undergirds the way the whole object system is implemented and therefore
+is a major win all around.
 
 Basically, always try to use whatever the latest version of Python is.
 Do not use Python 2. It will be officially retired in 2020. That's two
@@ -171,6 +172,10 @@ for those wishing to do the kinds of tasks that Bash scripting is
 commonly used for.
 
 .. _official tutorial: https://docs.python.org/3/tutorial/index.html
+.. _Introducing Python: http://shop.oreilly.com/product/0636920028659.do
+.. _Think Python: http://shop.oreilly.com/product/0636920045267.do
+.. _Dive Into Python: http://www.diveintopython3.net/
+.. _Learn Python the Hard Way: https://learncodethehardway.org/python/
 
 Reading and Writing Files
 -------------------------
@@ -225,7 +230,7 @@ reading. You can, of course, do ``my_file = open('my_file.txt')`` as
 well. When you use ``with x as y:`` instead of asignment, it ensures the
 object is properly cleaned up when the block is exited using something
 called a "context manager". You can do ``my_file.close()`` manually, but
-the ``with`` block will ensure that happens even you hit an error
+the ``with`` block will ensure that happens even if you hit an error
 without having to write a lot of extra code.
 
 The gross thing about context managers is that that they add an extra
@@ -408,9 +413,9 @@ syntax that returns a new list starting on the second item of
 
 If you want to build a more complete set of flags and arguments for a
 CLI program, the standard library module for that is argparse_. The
-tutorial leaves out some useful info, so here's the `API docs`_. click_
-is a popular and powerful third-party module for building even more
-advanced CLI interfaces.
+tutorial in that link leaves out some useful info, so here are the `API
+docs`_. click_ is a popular and powerful third-party module for building
+even more advanced CLI interfaces.
 
 .. _argparse: https://docs.python.org/3/howto/argparse.html
 .. _API docs: https://docs.python.org/3/library/argparse.html
@@ -421,7 +426,7 @@ Environment Variables and Config files
 Ok, environment variables and config files aren't necessarily only part
 of CLI interfaces, but they are part of the user interface in general,
 so I stuck them here. Environment variables are in the ``os.environ``
-mapping, so:
+mapping, so you get to ``$HOME`` like this:
 
 .. code:: Python
 
@@ -468,11 +473,15 @@ which will be the focus of path manipulation in this tutorial.
   >>> p
   PosixPath('.')
   >>> # iterate over directory contents
-  >>> list(p.iterdir())
-  [PosixPath('.git'), PosixPath('out.html'), PosixPath('README.rst')]
+  >>> for i in p.iterdir():
+  ...     print(repr(i))
+  PosixPath('.git')
+  PosixPath('out.html')
+  PosixPath('README.rst')]
   >>> # use filename globbing
-  >>> list(p.glob('*.rst'))
-  [PosixPath('README.rst')]
+  >>> for i in p.glob('*.rst'):
+  ...     print(repr(i))
+  PosixPath('README.rst')
   >>> # get the full path
   >>> p = p.absolute()
   >>> p
@@ -677,9 +686,9 @@ also be done in Python.
 
 .. code:: Python
 
-  >>> # sed 's/a string/another string/' -- i.e. doesn't regex
+  >>> # sed 's/a string/another string/g' -- i.e. doesn't regex
   >>> replaced = (s.replace('a string', 'another string') for s in ics)
-  >>> # sed 's/pattern/replacement/' -- needs regex
+  >>> # sed 's/pattern/replacement/g' -- needs regex
   >>> replaced = (re.sub(r'pattern', r'replacement', s) for s in ics)
 
 re.sub_ has a lot of additional features, including the ability to use a
@@ -747,7 +756,7 @@ lot of what is said here will still be relevant.
 
 The Popen_ API (over which the run_ function is a thin wrapper) is a
 very flexible, securely designed interface for running processes. Most
-importantly, it doesn't open a subshell by default. That's right; It's
+importantly, it doesn't open a subshell by default. That's right, it's
 completely safe from shell injection vulnerabilities -- or, the
 injection vulnerabilities are opt-in. There's always the ``shell=True``
 option if you're determined to write bad code.
@@ -765,6 +774,18 @@ tried my hand at a Python preprocessor that allows inlining commands,
 but it's sort of still in the works. You can search my github account if
 you're desperately interested in that. At present, the documentation is
 out of date.
+
+.. _subprocess: https://docs.python.org/3/library/subprocess.html
+.. _Popen:
+  https://docs.python.org/3/library/subprocess.html#popen-constructor
+.. _run:
+  https://docs.python.org/3/library/subprocess.html#subprocess.run
+.. _old API:
+  https://docs.python.org/3/library/subprocess.html#call-function-trio
+.. _Plumbum: https://plumbum.readthedocs.io/en/latest/
+.. _Sarge: http://sarge.readthedocs.io/en/latest/
+.. _easyproc: https://github.com/ninjaaron/easyproc
+.. _xonsh: http://xon.sh/
 
 Anyway, on with the show.
 
@@ -784,20 +805,214 @@ returned is a CompletedProcess instance, which has an ``args`` attribute
 and a ``returncode`` attribute. More attributes may also become
 available when certain keyword arguments are used with ``run``.
 
+Dealing with Exit Codes
++++++++++++++++++++++++
+Unlike most other things in Python, a process that fails doesn't raise
+an exception by default.
 
-More on the way...
+.. code:: Python
 
+  >>> sp.run(['ls', '-lh', 'foo bar baz'])
+  ls: cannot access 'foo bar baz': No such file or directory
+  CompletedProcess(args=['ls', '-lh', 'foo bar baz'], returncode=2)
 
-.. _subprocess: https://docs.python.org/3/library/subprocess.html
-.. _Popen:
-  https://docs.python.org/3/library/subprocess.html#popen-constructor
-.. _run:
-  https://docs.python.org/3/library/subprocess.html#subprocess.run
-.. _old API:
-  https://docs.python.org/3/library/subprocess.html#call-function-trio
-.. _Plumbum: https://plumbum.readthedocs.io/en/latest/
-.. _Sarge: http://sarge.readthedocs.io/en/latest/
-.. _easyproc: https://github.com/ninjaaron/easyproc
-.. _xonsh: http://xon.sh/
+This is the same way it works in the shell. However, you usually
+are going to want your script to stop if your command didn't work, or at
+least try something else. You could, do this manually:
 
+.. code:: Python
 
+  >>> proc = sp.run(['ls', '-lh', 'foo bar baz'])
+  ls: cannot access 'foo bar baz': No such file or directory
+  >>> if proc.returncode != 0:                   
+  ...     # do something else
+
+This would be most useful in cases where a non-zero exit code indicates
+something other than an error. For example, ``grep`` returns ``1`` if no
+lines were matched. Not really an error, but something you might want to
+check for.
+
+However, in the majority of cases, you probably want a non-zero exit
+code to crash the program, especially during development. This is where
+you need the ``check`` parameter:
+
+.. code:: Python
+
+  >>> sp.run(['ls', '-lh', 'foo bar baz'], check=True)
+  Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "/usr/lib/python3.6/subprocess.py", line 418, in run
+      output=stdout, stderr=stderr)
+  subprocess.CalledProcessError: Command '['ls', '-lh', 'foo bar baz']' returned non-zero exit status 2.
+  Command '['ls', '-lh', 'foo bar baz']' returned non-zero exit status 2.
+
+Much better! You can also use normal Python `exception handling`_ now,
+if you like.
+
+.. _exception handling: https://docs.python.org/3/tutorial/errors.html
+
+Redirecting process IO (i.e. pipes)
++++++++++++++++++++++++++++++++++++
+
+If you want to capture the output of a process, you need to use the
+``stdout`` parameter. If you wanted to redirect it to a file, it's
+pretty straight-forward:
+
+.. code:: Python
+
+  >>> with open('./foo', 'w') as foofile:
+  ...     sp.run(['ls'], stdout=foofile)
+  
+Pretty similar with input:
+
+.. code:: Python
+
+  >>> with open('foo') as foofile:
+  ...     sp.run(['tr', 'a-z', 'A-Z'], stdin=foofile)
+  ...
+  FOO
+  OUT.HTML
+  README.RST
+
+If you want to do something with input and output text inside the script
+itself, you need to use the special constant, ``subprocess.PIPE``.
+
+.. code:: Python
+
+  >>> proc = sp.run(['ls'], stdout=sp.PIPE)
+  >>> print(proc.stdout)
+  b'foo\nout.html\nREADME.rst\n'
+
+What's this now? Oh, right. Streams to and from processes default to
+bytes, not strings. You can decode your string, or you can use the flag
+to ensure the stream is a python string, which, in their infinite
+wisdom, the authors of the ``subprocess`` module chose to call
+``universal_newlines``, as if that's the most important distinction
+between bytes and strings in Python.
+
+.. code:: Python
+
+  >>> proc = sp.run(['ls'], stdout=sp.PIPE, universal_newlines=True)
+  >>> print(proc.stdout)
+  foo
+  out.html
+  README.rst
+  
+
+So that's awkward. In fact, this madness was one of my primary
+motivations for writing easyproc_ (as well providing more file-like
+interfaces and error checking by default).
+
+If you want to send a string to the stdin of a process, you will use a
+different ``run`` parameter, ``input``.
+
+.. code:: Python
+
+  >>> sp.run(['tr', 'a-z', 'A-Z'], input='foo bar baz\n')
+  Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "/usr/lib/python3.6/subprocess.py", line 405, in run
+      stdout, stderr = process.communicate(input, timeout=timeout)
+    File "/usr/lib/python3.6/subprocess.py", line 828, in communicate
+      self._stdin_write(input)
+    File "/usr/lib/python3.6/subprocess.py", line 781, in _stdin_write
+      self.stdin.write(input)
+  TypeError: a bytes-like object is required, not 'str'
+  a bytes-like object is required, not 'str'
+  >>>
+  >>> ## Makes nothing but sense...
+  >>>
+  >>>
+  >>> sp.run(['tr', 'a-z', 'A-Z'], input='foo bar baz\n', universal_newlines=True)
+  FOO BAR BAZ
+  CompletedProcess(args=['tr', 'a-z', 'A-Z'], returncode=0)
+  >>> ## perturbation, thy name is `universal_newlines`.
+
+The ``stderr`` Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Just as there is an stdout parameter, there is also an stderr parameter
+for dealing with messages from the process. It works as expected:
+
+.. code:: Python
+
+  >>> with open('foo.log', 'w') as logfile:
+  ...     sp.run(['ls', 'foo bar baz'], stderr=logfile)
+  ...
+  >>> sp.run(['ls', 'foo bar baz'], stderr=sp.PIPE).stderr
+  b"ls: cannot access 'foo bar baz': No such file or directory\n"
+
+However, another common thing to do with stderr is to combine it with
+stdout using the oh-so-memorable incantation ``2>&1``. ``subprocess``
+has a thing for that, too, the ``STDOUT`` constant.
+
+.. code:: Python
+
+  >>> proc = sp.run(['ls', '.', 'foo bar baz'], stdout=sp.PIPE, stderr=sp.STDOUT)
+  >>> print(proc.stdout.decode())
+  ls: cannot access 'foo bar baz': No such file or directory
+  .:
+  foo
+  foo.log
+  out.html
+  README.rst
+
+You can also redirect stdout and stderr to /dev/null with the constant
+``subprocess.DEVNULL``.
+
+There's a lot more you can do with the run_ function, but that should be
+enough to be getting on with.
+
+Background Processes and Concurrency
+++++++++++++++++++++++++++++++++++++
+
+``subprocess.run`` starts a process, waits for it to finish, and then
+returns a ``CompletedProcess`` instance that has information about what
+happened. This is probably what you want in most cases. However, if you
+want processes to run in the background or need interact with them while
+they continue to run, you need the Popen_ constructor.
+
+If you simply want to start a process in the background while you get on
+with your script, it's a lot like ``run``.
+
+.. code:: Python
+
+  >>> ## Time for popcorn...
+  >>> sp.Popen(['mpv', 'Star Trek II: The Wrath of Kahn.mkv'])
+  <subprocess.Popen object at 0x7fc35f4c0668>
+  >>> ## and the script continues while we enjoy the show...
+
+This isn't quite the same as backgrounding a process in the shell using
+``&``. I haven't looked into what happens technically, but I can tell
+you that the process will keep going even if the terminal it was started
+from is closed. It's a bit like ``nohup``. However, if not redirected,
+stdout and stderr will still be printed to that terminal.
+
+Other reasons to do this might be to kick off a process at the beginning
+of the script that you need output from, and then come back to it later
+to minimize wait-time. For example, a I use a Python script to generate
+my ZSH prompt. Among other things, this script checks the git status of
+the folder. However, that can take some time and I want the script to do
+as much work as possible while it's waiting on those commands.
+
+.. code:: Python
+
+  ## somewhere near the top of the script:
+  branch_proc = sp.Popen(['git', 'branch'], stdout=sp.PIPE,
+                         stderr=sp.DEVNULL, universal_newlines=True)
+  status_proc = sp.Popen(['git', 'status', '-s'], stdout=sp.PIPE,
+                         stderr=sp.DEVNULL, universal_newlines=True)
+
+  ...
+
+  ## somewhere further down:
+  branch = [i for i in branch_proc.stdout if i.startswith('*')][0][2:-1]
+  color = 'red' if status_proc.stdout.read() else 'green'
+
+Notice that ``stdout`` in this case is not a string. It's a file-like
+object. This is perfect for dealing with output from a program
+line-by-line, as many system utilities do. This is particularly
+important if the program produces a lot of lines of output and reading
+the whole thing into a Python string could potentially use up a lot of
+RAM. It's also useful for long-running programs that may produce output
+slowly, but you want to process it as it comes.
