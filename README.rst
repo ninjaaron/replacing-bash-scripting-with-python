@@ -1003,9 +1003,8 @@ as much work as possible while it's waiting on those commands.
   status_proc = sp.Popen(['git', 'status', '-s'], stdout=sp.PIPE,
                          stderr=sp.DEVNULL, universal_newlines=True)
 
-  ...
+  ## ... somewhere further down:
 
-  ## somewhere further down:
   branch = [i for i in branch_proc.stdout if i.startswith('*')][0][2:-1]
   color = 'red' if status_proc.stdout.read() else 'green'
 
@@ -1015,4 +1014,126 @@ line-by-line, as many system utilities do. This is particularly
 important if the program produces a lot of lines of output and reading
 the whole thing into a Python string could potentially use up a lot of
 RAM. It's also useful for long-running programs that may produce output
-slowly, but you want to process it as it comes.
+slowly, but you want to process it as it comes. e.g.:
+
+.. code:: Python
+
+  >>> # don't actually use `find` in Python. Path.glob and os.walk
+  >>> # are better.
+  >>> with sp.Popen(['find', '/'], stdout=sp.PIPE,
+  ...                universal_newlines=True) as proc:
+  ...     for line in proc.stdin:
+  ...         do_stuff_with(line)
+
+Unfortunately, the reverse doesn't work very well on stdin. By default,
+the processes side of the stdin pipe blocks until the python side is
+closed. It's possible to unblock it and sent carefully buffered streams
+to the other side (the ``asyncio`` module actually facilitates this),
+but that sort of gets beyond the scope of this tutorial.
+
+This means that piping two processes together in Python should isn't
+particularly efficient. This isn't something you should really have to
+do very often, since you can do most of your text filtering in Python as
+well as you can with text processing tools in the shell, but if you do
+_need_ to do it for some reason (to do something wacky with RPMs and
+``cpio``? I dunno), you can do just about whatever you need with
+``shell=True``. However, that means you need to think about safety.
+
+``shlex.quote``: protecting against shell injection
++++++++++++++++++++++++++++++++++++++++++++++++++++
+As soon as a process gets a shell, you're giving up one of the main
+benefits of using Python in the first place. You get back into the realm
+of injection vulnerabilities. However, if you need a pipe, it's probably
+the best option (unless you use an 3rd party library, which might not be
+a bad option). Another scenario where you're forced into using a shell
+would be executing something over ssh.
+
+Basically, instead of this:
+
+.. code:: Python
+
+  >>> sp.run('ls ' + path + ' | wc -l', shell=True)
+
+You need to do something like this:
+
+.. code:: Python
+
+  >>> import shlex
+  >>> sp.run('ls ' + shlex.quote(path) + ' | wc -l', shell=True)
+
+shlex.quote_ will ensure that any spaces or shell metacharacters are
+properly escaped. The only trouble with it is that you actually have to
+remember to use it.
+
+For the specific case of pipelines, there is standard library module
+that will do everything safely for you, pipes_. I find the interface a
+little weird and don't actually use it myself, but it's there if you
+want it.
+
+The ``shlex`` module also has a ``split`` function which will split a
+string into a list the same way the shell would split arguments. This is
+useful if you have a string that looks like a shell command and you want
+to send it to ``subprocess.run`` or ``subprocess.Popen``.
+
+.. _shlex.quote: https://docs.python.org/3/library/shlex.html#shlex.quote
+.. _pipes: https://docs.python.org/3/library/shlex.html#shlex.quote
+
+Miscellaneous
+-------------
+This is where all the stuff goes that doesn't really need detailed
+coverage in this tutorial, but it's something you need to do often
+enough in shell scripts that it deserves pointers to additional
+resources.
+
+Interprocess Communication
+++++++++++++++++++++++++++
+I'm not sure if IPC is really part of bash scripting, but sometimes
+administrators might need to write a daemon or whatever that runs in the
+background, but is still able to receive communication from the user via
+a client.
+
+The simplest way to do this is with a fifo, a.k.a. a named pipe.
+
+.. code:: Python
+
+  import os
+
+  myfifo = '/tmp/myfifo'
+  os.mkfifo(myfifo)
+  try:
+      while True:
+          with open(myfifo) as fh:
+              do_something(fh.read())
+  except:
+      os.remove(myfifo)
+      raise
+
+That's your server that you start with your init system. The simplest
+client could just be echo; ``echo some text > /tmp/myfifo``. Of course,
+you can do a lot more with the client if you like. The limitation of a
+fifo is that it's one-way communication. If you want two-way, you need
+two fifos. Alternatively, use a TCP socket.
+
+Python has a dead-simple library for making a socket server, aptly named
+socketserver_. Scroll down to the examples and they have basically
+everything you need to know for implementing your server and client. For
+a daemon that you're just interacting with over localhost, you're going
+to get better performance using the ``UnixStreamServer`` class, and you
+won't use up a port. Plus, Unix sockets will make your Unix beard grow
+better.
+
+.. _socketserver: https://docs.python.org/3/library/socketserver.html
+
+Downloading Web Pages and Files
++++++++++++++++++++++++++++++++
+If you're doing any kind of fancy http requests that require things like
+interacting with APIs, shooting data around, doing authentication, or
+basically anything besides downloading static assets, use requests_. In
+fact, you should probably even use it for the simple case of downloading
+things. However, this is also possible with the standard library, and
+not particularly painful.
+
+For that, you need urllib.request_.
+
+.. _requests: http://docs.python-requests.org/en/master/
+.. _urllib.request: https://docs.python.org/3/library/urllib.request.html
