@@ -109,21 +109,22 @@ name? Don't use Bash. Do your part in the battle against mental illness.
 
 Why Python?
 +++++++++++
-No particular reason. Perl and Ruby are also flexible, easy-to-write
+No particular reason. Perl_ and Ruby_ are also flexible, easy-to-write
 languages that have robust support for administrative scripting and
 automation. I would recommend against Perl for beginners because it has
 some similar issues to Bash: it was a much smaller language when it was
 created, and a lot of the syntax for the newer features has a bolted-on
-feeling. However, if one knows Perl well and is comfortable with it,
+feeling [#]_. However, if one knows Perl well and is comfortable with it,
 it's well suited to the task, and is still a much saner choice for
-non-trivial automation scripts.
+non-trivial automation scripts, and that is one of its strongest domains.
 
-Node.js is also starting to be used for administrative stuff these days,
-so that could also be an option. I've been investigating the possibility
-of using Julia for this as well. Anyway, most interpreted languages seem
-to have pretty good support for this kind of thing, and you should just
-choose one that you like and is widely available on Linux and other
-\*nix operating systems.
+`Node.js`_ is also starting to be used for administrative stuff these
+days, so that could also be an option, though JavaScript has similar
+issues to Perl. I've been investigating the possibility of using Julia_
+for this as well. Anyway, most interpreted languages seem to have pretty
+good support for this kind of thing, and you should just choose one that
+you like and is widely available on Linux and other \*nix operating
+systems.
 
 They main reason I would recommend Python is if you already know it. If
 you don't know anything besides BASH (or BASH and lower-level languages
@@ -135,6 +136,14 @@ language.
 
 The other very compelling reason to learn Python is that it is the
 language covered in this very compelling tutorial.
+
+.. _Perl: https://www.perl.org/
+.. _Ruby: http://rubyforadmins.com/
+.. [#] I'm refering specifically to Perl 5 here. Perl 6 is a better
+       language, in my opinion, but suffers from lack of adoption.
+       https://perl6.org/
+.. _Node.js: https://developer.atlassian.com/blog/2015/11/scripting-with-node/
+.. _Julia: https://docs.julialang.org/en/stable/
 
 Learn Python
 ++++++++++++
@@ -725,7 +734,7 @@ is given as a delimiter.
 Running Processes
 -----------------
 I come to this section at the end of the tutorial because one
-generally *should not be running a lot of processes inside of a Python
+*generally should not be running a lot of processes inside of a Python
 script*. However, there are plenty of times when this "rule" should be
 broken. Say you want to do some automation with packages on your
 system; you'd be nuts not to use ``apt`` or ``yum`` (spelled ``dnf``
@@ -898,13 +907,12 @@ between bytes and strings in Python.
   out.html
   README.rst
   
-
 So that's awkward. In fact, this madness was one of my primary
-motivations for writing easyproc_ (as well providing more file-like
-interfaces and error checking by default).
+motivations for writing easyproc_.
 
-If you want to send a string to the stdin of a process, you will use a
-different ``run`` parameter, ``input``.
+If you want to sen a string to the stdin of a process, you will use a
+different ``run`` parameter, ``input`` (again, requries bytes unless
+``universal_newlines=True``).
 
 .. code:: Python
 
@@ -942,9 +950,10 @@ for dealing with messages from the process. It works as expected:
   >>> sp.run(['ls', 'foo bar baz'], stderr=sp.PIPE).stderr
   b"ls: cannot access 'foo bar baz': No such file or directory\n"
 
-However, another common thing to do with stderr is to combine it with
-stdout using the oh-so-memorable incantation ``2>&1``. ``subprocess``
-has a thing for that, too, the ``STDOUT`` constant.
+However, another common thing to do with stderr in administrative
+scripts is to to combine it with stdout using the oh-so-memorable
+incantation shell incantation of ``2>&1``. ``subprocess`` has a thing
+for that, too, the ``STDOUT`` constant.
 
 .. code:: Python
 
@@ -990,10 +999,10 @@ stdout and stderr will still be printed to that terminal.
 
 Other reasons to do this might be to kick off a process at the beginning
 of the script that you need output from, and then come back to it later
-to minimize wait-time. For example, a I use a Python script to generate
-my ZSH prompt. Among other things, this script checks the git status of
-the folder. However, that can take some time and I want the script to do
-as much work as possible while it's waiting on those commands.
+to minimize wait-time. For example, I use a Python script to generate my
+ZSH prompt. Among other things, this script checks the git status of the
+folder. However, that can take some time and I want the script to do as
+much work as possible while it's waiting on those commands.
 
 .. code:: Python
 
@@ -1026,8 +1035,8 @@ slowly, but you want to process it as it comes. e.g.:
   ...         do_stuff_with(line)
 
 Unfortunately, the reverse doesn't work very well on stdin. By default,
-the processes side of the stdin pipe blocks until the python side is
-closed. It's possible to unblock it and sent carefully buffered streams
+the process's side of the stdin pipe blocks until the python side is
+closed. It's possible to unblock it and send carefully buffered streams
 to the other side (the ``asyncio`` module actually facilitates this),
 but that sort of gets beyond the scope of this tutorial.
 
@@ -1035,7 +1044,7 @@ This means that piping two processes together in Python should isn't
 particularly efficient. This isn't something you should really have to
 do very often, since you can do most of your text filtering in Python as
 well as you can with text processing tools in the shell, but if you do
-_need_ to do it for some reason (to do something wacky with RPMs and
+*need* to do it for some reason (to do something wacky with RPMs and
 ``cpio``? I dunno), you can do just about whatever you need with
 ``shell=True``. However, that means you need to think about safety.
 
