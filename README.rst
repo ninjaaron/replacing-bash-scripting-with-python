@@ -139,11 +139,12 @@ language covered in this very compelling tutorial.
 
 .. _Perl: https://www.perl.org/
 .. _Ruby: http://rubyforadmins.com/
+.. _Node.js: https://developer.atlassian.com/blog/2015/11/scripting-with-node/
+.. _Julia: https://docs.julialang.org/en/stable/
+
 .. [#] I'm refering specifically to Perl 5 here. Perl 6 is a better
        language, in my opinion, but suffers from lack of adoption.
        https://perl6.org/
-.. _Node.js: https://developer.atlassian.com/blog/2015/11/scripting-with-node/
-.. _Julia: https://docs.julialang.org/en/stable/
 
 Learn Python
 ++++++++++++
