@@ -778,12 +778,8 @@ the field is easyproc_.
 
 There are also a couple of Python supersets that allow inlining shell
 commands in python code. xonsh_ is one, which also provides a fully
-function interactive system shell experience and is the program that
-runs every time I open a terminal. I highly recommend it! I've also
-tried my hand at a Python preprocessor that allows inlining commands,
-but it's sort of still in the works. You can search my github account if
-you're desperately interested in that. At present, the documentation is
-out of date.
+functional interactive system shell experience and is the program that
+runs every time I open a terminal. I highly recommend it!
 
 .. _subprocess: https://docs.python.org/3/library/subprocess.html
 .. _Popen:
@@ -1032,53 +1028,45 @@ slowly, but you want to process it as it comes. e.g.:
   >>> # are better.
   >>> with sp.Popen(['find', '/'], stdout=sp.PIPE,
   ...                universal_newlines=True) as proc:
-  ...     for line in proc.stdin:
+  ...     for line in proc.stdout:
   ...         do_stuff_with(line)
 
-Unfortunately, the reverse doesn't work very well on stdin. By default,
-the process's side of the stdin pipe blocks until the python side is
-closed. It's possible to unblock it and send carefully buffered streams
-to the other side (the ``asyncio`` module actually facilitates this),
-but that sort of gets beyond the scope of this tutorial.
+You can also use this mechanism to pipe processes together, though the
+cases when you need to do this in python should be rare, since text
+filtering is best done in python itself. A case where you might want to
+pipe processes together could be extracting the content of an rpm
+package:
 
-This means that piping two processes together in Python should isn't
-particularly efficient. This isn't something you should really have to
-do very often, since you can do most of your text filtering in Python as
-well as you can with text processing tools in the shell, but if you do
-*need* to do it for some reason (to do something wacky with RPMs and
-``cpio``? I dunno), you can do just about whatever you need with
-``shell=True``. However, that means you need to think about safety.
+.. code:: python
+
+  >>> # rpm2cpio a_package.rpm | cpio -idm
+  >>> r2c = sp.Popen(['rpm2cpio', 'a_package.rpm'], stdout=sp.PIPE)
+  >>> sp.run(['cpio', '-idm'], stdin=r2c.stdout)
 
 ``shlex.quote``: protecting against shell injection
 +++++++++++++++++++++++++++++++++++++++++++++++++++
 As soon as a process gets a shell, you're giving up one of the main
 benefits of using Python in the first place. You get back into the realm
-of injection vulnerabilities. However, if you need a pipe, it's probably
-the best option (unless you use an 3rd party library, which might not be
-a bad option). Another scenario where you're forced into using a shell
-would be executing something over ssh.
+of injection vulnerabilities. One situation where this might come up is
+when you're forced into using a shell would be executing something over
+ssh.
 
 Basically, instead of this:
 
 .. code:: Python
 
-  >>> sp.run('ls ' + path + ' | wc -l', shell=True)
+  >>> sp.run(['ssh', 'user@host', 'ls', path])
 
 You need to do something like this:
 
 .. code:: Python
 
   >>> import shlex
-  >>> sp.run('ls ' + shlex.quote(path) + ' | wc -l', shell=True)
+  >>> sp.run(['ssh', 'user@host', 'ls', shlex.quote(path)])
 
 shlex.quote_ will ensure that any spaces or shell metacharacters are
 properly escaped. The only trouble with it is that you actually have to
 remember to use it.
-
-For the specific case of pipelines, there is standard library module
-that will do everything safely for you, pipes_. I find the interface a
-little weird and don't actually use it myself, but it's there if you
-want it.
 
 The ``shlex`` module also has a ``split`` function which will split a
 string into a list the same way the shell would split arguments. This is
