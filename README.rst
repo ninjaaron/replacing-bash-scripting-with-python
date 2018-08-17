@@ -316,8 +316,8 @@ section.
 .. _reading and writing files:
   https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
 
-CLI interfaces in Python
-------------------------
+Command-Line Interfaces in Python
+---------------------------------
 
 Working with ``stdin``, ``stdout`` and ``stderr``
 +++++++++++++++++++++++++++++++++++++++++++++++++
