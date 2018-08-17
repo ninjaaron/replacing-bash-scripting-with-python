@@ -341,7 +341,7 @@ lines containing whatever it is you're searching for. Your setting the
 
 Great cli scripts should follow the same pattern so you can incorperate
 them into your shell pipelines.  You can, of course, write your script
-with it's own "interactive" interface and read lines of user input one
+with its own "interactive" interface and read lines of user input one
 at a time:
 
 .. code:: Python
