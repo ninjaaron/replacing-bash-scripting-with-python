@@ -162,13 +162,13 @@ flawed, though I do appreciate that it was written by someone with
 strong opinions about correctness, which has some benefits.
 
 This tutorial assumes Python 3.5 or higher, though it may sometimes use
-idioms from 3.6, and I will attempt to document when have used an idiom
-which doesn't work in 3.4, which is apparently the version that ships
-with the latest CentOS and SLES. Use at least 3.6 if you can. It has
-some cool new features, but the implementation of dictionaries (Python's
-hash map) was also overhauled in this version of Python, which sort of
-undergirds the way the whole object system is implemented and therefore
-is a major win all around.
+idioms from newer version, and I will attempt to document when have used
+an idiom which doesn't work in 3.4, which is apparently the version that
+ships with the latest CentOS and SLES. Use at least 3.6 if you can. It
+has some cool new features, but the implementation of dictionaries
+(Python's hash map) was also overhauled in this version of Python, which
+sort of undergirds the way the whole object system is implemented and
+therefore is a major win all around.
 
 Basically, always try to use whatever the latest version of Python is.
 Do not use Python 2. It will be officially retired in 2020. That's two
