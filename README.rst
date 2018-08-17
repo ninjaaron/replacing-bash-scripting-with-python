@@ -306,11 +306,10 @@ a file and adds text there. In shell terms, ``'r'`` is a bit like ``<``,
 
 This is just the beginning of what you can do with files. If you want to
 know all their methods and modes, check the official tutorial's section
-on `reading and writing files`_.
-File objects provide a lot of cool interfaces. These interfaces will
-come back with other "file-like objects" which will come up many times
-later, including in the very next section.
-
+on `reading and writing files`_.  File objects provide a lot of cool
+interfaces. These interfaces will come back with other "file-like
+objects" which will come up many times later, including in the very next
+section.
 
 .. _generator function:
   https://docs.python.org/3/tutorial/classes.html#generators
@@ -326,10 +325,24 @@ Unix scripting is all about filtering text streams. You have a stream
 that comes from lines in a file or output of a program and you pipe it
 through other programs. Unix has a bunch of special-purpose programs
 just for filtering text (some of the more popular of which are
-enumerated at the beginning of the previous chapter). Great cli scripts
-should follow the same pattern so you can incorperate them into your
-shell pipelines.  You can, of course, write your script with it's own
-"interactive" interface and read lines of user input one at a time:
+enumerated at the beginning of the previous chapter). Everyone using a
+\*nix system has probably done something like this at one point or
+another:
+
+.. code:: Bash
+
+  program-that-prints-something | grep 'a pattern'
+
+This is the "normal" way to search through the output of a program for
+lines containing whatever it is you're searching for. Your setting the
+``stdout`` of ``program-that-prints-something`` to the stdin of
+``grep``.
+
+
+Great cli scripts should follow the same pattern so you can incorperate
+them into your shell pipelines.  You can, of course, write your script
+with it's own "interactive" interface and read lines of user input one
+at a time:
 
 .. code:: Python
 
@@ -392,6 +405,10 @@ For stderr, it's a similar story:
 If you want more advanced logging functions, check out the `logging
 module`_.
 
+Using ``stdin``, ``stdout`` and ``stderr``, you can write python
+programs which behave as filters and integrate well into a unix
+workflow.
+
 .. _logging module:
   https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
@@ -440,6 +457,7 @@ mapping, so you get to ``$HOME`` like this:
 
 .. code:: Python
 
+  >>> import os
   >>> os.environ['HOME']
   '/home/ninjaaron'
 
@@ -455,9 +473,7 @@ human-edited json, but go ahead and shoot yourself in the foot if you
 want to. At least it's flexible.
 
 PyYaml_, the yaml parser, and toml_ are third-party libraries that are
-useful for configuration files. (Install ``pyyaml`` with pip. Don't
-download the tarball like the documentation suggests. I don't know why
-it says that.)
+useful for configuration files.
 
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _json: https://docs.python.org/3/library/json.html
