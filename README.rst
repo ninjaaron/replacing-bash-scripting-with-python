@@ -974,7 +974,8 @@ bytes, not strings. You can decode your string, or you can use the flag
 to ensure the stream is a python string, which, in their infinite
 wisdom, the authors of the ``subprocess`` module chose to call
 ``universal_newlines``, as if that's the most important distinction
-between bytes and strings in Python.
+between bytes and strings in Python. *Update: as of Python 3.7,
+`universal_newlines` is aliased to `text`*
 
 .. code:: Python
 
@@ -1011,7 +1012,6 @@ different ``run`` parameter, ``input`` (again, requries bytes unless
   >>> sp.run(['tr', 'a-z', 'A-Z'], input='foo bar baz\n', universal_newlines=True)
   FOO BAR BAZ
   CompletedProcess(args=['tr', 'a-z', 'A-Z'], returncode=0)
-  >>> ## perturbation, thy name is `universal_newlines`.
 
 The ``stderr`` Parameter
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1125,11 +1125,15 @@ package:
 
 ``shlex.quote``: protecting against shell injection
 +++++++++++++++++++++++++++++++++++++++++++++++++++
+The ``subprocess``, as mentioned earlier, is safe from injection by
+default, unless ``shell=True`` is used. However, there are some programs
+that will give arguments to a shell after they are started. SSH is a
+classic example. Everything argument you send with ssh gets parsed by a
+shell on the remote system.
+
 As soon as a process gets a shell, you're giving up one of the main
 benefits of using Python in the first place. You get back into the realm
-of injection vulnerabilities. One situation where this might come up is
-when you're forced into using a shell would be executing something over
-ssh.
+of injection vulnerabilities.
 
 Basically, instead of this:
 
@@ -1249,7 +1253,7 @@ better.
 
 The problem with either of these is that they just block until they get
 a message (unless you use the threaded socket server, which might be
-fine in some cases. If you want your daemon to do work while
+fine in some cases). If you want your daemon to do work while
 simultaniously listening for input, you need threads or asyncio.
 Unfortunately for you, this tutorial is about replacing Bash with
 Python, and I'm not about to try to teach you concurrency.
