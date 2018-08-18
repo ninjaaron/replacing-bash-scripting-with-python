@@ -627,33 +627,53 @@ other "normal" languages. Python is not so exceptional in this regard,
 though if you're used to JavaScript, Ruby, Perl and others, you may be
 surprised to find that Python doesn't have regex literals. The regex
 functionally is all encapsulated in the re_ module. (The official docs
-also have a `regex HOWTO`_, but it seems more geared towards people who
-may not be experienced with regex.)
+have a `regex HOWTO`_, which is a good place to start if you don't know
+anything about regular expressions. If you have some experience, I'd
+recommed going straight for the re_ API docs.)
 
 This section is for people who know how to use programs like ``sed``,
-``grep`` and ``awk`` and wish to get similar results in Python. I
-admit that writing simple text filters in Python will never be as
-elegant as it is in Perl, since Perl was more or less created to be
-like a super-powered version of the ``sh`` + ``awk`` + ``sed``. The
-same thing can sort of be said of ``awk``, the original text-filtering
-language on Unix. The main reason to use Python for these tasks is
-that the project is going to scale a lot more easily when you want to
-do something a bit more complex.
+``grep`` and ``awk`` and wish to get similar results in Python, though
+short explanations will be provided of what those utilities are commonly
+used for.
 
-One thing to be aware of is that Python's regex is more like PCRE
-(Perl-style) than BRE or ERE that most shell utilities support. If you
-mostly do ``sed`` or ``grep`` without the ``-E`` option, you may want
-to look at the rules for Python regex (BRE is the regex dialect you
-know). If you're used to writing regex for ``awk`` or ``egrep`` (ERE),
-Python regex is more or less a superset of what you know. You still
-may want to look at the documentation for some of the more advanced
-things you can do.
+I admit that writing simple text filters in Python will never be as
+elegant as it is in Perl, since Perl was more or less created to be like
+a super-powered version of the ``sh`` + ``awk`` + ``sed``. The same
+thing can sort of be said of ``awk``, the original text-filtering
+language on Unix. The main reason to use Python for these tasks is that
+the project is going to scale a lot more easily when you want to do
+something a bit more complex.
+
+Another thing to keep in mind is that python has built-in operations
+that you can use if you just need to match a string, rather than a
+regular expression. Simple string operations are much faster than
+regular expressions, though not as powerful.
+
+.. Note::
+
+  One thing to be aware of is that Python's regex is more like PCRE
+  (Perl-style -- also similar to Ruby, JavaScript, etc.) than BRE or ERE
+  that most shell utilities support. If you mostly do ``sed`` or
+  ``grep`` without the ``-E`` option, you may want to look at the rules
+  for Python regex (BRE is the regex dialect you know). If you're used
+  to writing regex for ``awk`` or ``egrep`` (ERE), Python regex is more
+  or less a superset of what you know. You still may want to look at the
+  documentation for some of the more advanced things you can do. If you
+  know regex from either vi/Vim or Emacs, they both use their own
+  dialect of regex, but they are supersets of BRE, and Python's regex
+  will have some major differences.
 
 .. _re: https://docs.python.org/3/library/re.html
 .. _regex HOWTO: https://docs.python.org/3/howto/regex.html
 
 How to ``grep``
 +++++++++++++++
+``grep`` is the Unix utility that goes through each line of a file,
+tests if it contains a certain pattern, and then prints the lines that
+match. If you're a programmer and you don't use ``grep``, start using
+it! Retrieving matching lines in a file is easy with Python, so we'll
+start there.
+
 If you don't need pattern matching (i.e. something you could do with
 ``fgrep``), you don't need regex to match a substring. You can simply
 use builtin syntax:
@@ -699,16 +719,50 @@ adding ``not`` to the ``if`` clause. There are also flags you can add to
 do things like ignore case (``flags=re.I``), etc. Check out the docs for
 more.
 
+Example: searching logs for errors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Say you want to look through the log file of a certain service on your
+system for errors. With grep, you might do something like this:
+
+.. code:: bash
+
+  $ grep -i error: /var/log/some_service.log
+
+This will search through ``/var/log/some_service.log`` for any line
+containing the string ``error:``, ignoring case. To do the same thing in
+Python:
+
+.. code:: Python
+
+  with open('/var/log/some_service.log') as log:
+      matches = (line for line in log if 'error:' in line.lower())
+      # line.lower() is a substitute for -i in grep, in this case
+
+The difference here is that the bash version will print all the lines,
+and the python version is just holding on to them for further
+processing. If you want to print them, the next step is
+``print(*matches)`` or ``for line in matches: print(line, end='')``.
+However, this is in the context of a script, so you probably want to
+extract further information from the line and do something
+programatically with it anyway.
+
 .. _generator expression:
   https://docs.python.org/3/tutorial/classes.html#generator-expressions
 
 
 How to ``sed``
 ++++++++++++++
-Just a little tiny disclaimer: I know ``sed`` can do a lot of things and
-is really a "stream editor." I'm just covering how to do substitutions
-with Python, though, certainly, anything you can do with ``sed`` can
-also be done in Python.
+``sed`` can do a LOT of things. It's more or less "text editor" without
+a window. Instead of editing text manually, you give ``sed``
+instructions about changes to apply to lines, and it does it all in one
+shot. (The default is to print what the file would look like with
+modification. The file isn't actually changed unless you use a special
+flag.)
+
+I'm not going to cover all of that. Back when I wrote more shell scripts
+and less Python, the vast majority of my uses for ``sed`` were simply to
+use the substitution facilities to change instances of one pattern into
+something else, which is what I cover here.
 
 .. code:: Python
 
@@ -719,18 +773,24 @@ also be done in Python.
 
 re.sub_ has a lot of additional features, including the ability to use a
 *function instead of a string* for the replacement argument. I consider
-this to be very useful.
+this to be very useful. If you're new to regex, note especially the
+section about backreferences in replacements. You may wish to check the
+section in the `regex HOWTO`_ about `Search and Replace`_ as well.
 
 .. _re.sub: https://docs.python.org/3/library/re.html#re.sub
+.. _Search and Replace:
+  https://docs.python.org/3/howto/regex.html#search-and-replace
 
 How to ``awk``
 ++++++++++++++
 The ``sed`` section needed a little disclaimer. The ``awk`` section
-needs a bigger one. AWK is a Turing-complete text-processing language.
-I'm not going to cover how to do everything AWK can do with Python
-idioms. I'm just going to cover the simple case of working with fields
-in a line, as it is commonly used in shell scripts and on the command
-line.
+needs a bigger one. AWK is a Turing-complete text/table processing
+language.  I'm not going to cover how to do everything AWK can do with
+Python idioms.
+
+However, inside of shell scripts, it's most frequently used to extract
+fields from tabular data, such as tsv files. Basically, it's used to
+split strings.
 
 .. code:: Python
 
@@ -743,10 +803,13 @@ line.
 
 As is implied in this example, the str.split_ method splits on sections
 of contiguous whitespace by default. Otherwise, it will split on whatever
-is given as a delimiter.
+is given as a delimiter. For more on splitting with regular expressions,
+see re.split_ and `Splitting Strings`_.
 
-.. _str.split:
-  https://docs.python.org/3/library/stdtypes.html#str.split
+.. _str.split: https://docs.python.org/3/library/stdtypes.html#str.split
+.. _re.split: https://docs.python.org/3/library/re.html#re.split
+.. _Splitting Strings:
+  https://docs.python.org/3/howto/regex.html#splitting-strings
 
 Running Processes
 -----------------
@@ -790,7 +853,8 @@ option if you're determined to write bad code.
 On the other hand, it is a little cumbersome to work with, so there are a
 lot of third-party libraries to simplify it. Plumbum_ is probably the
 most popular of these. Sarge_ is also not bad. My own contribution to
-the field is easyproc_.
+the field is easyproc_ (though the documentation needs to be completely
+rewritten).
 
 There are also a couple of Python supersets that allow inlining shell
 commands in python code. xonsh_ is one, which also provides a fully
@@ -1099,6 +1163,53 @@ coverage in this tutorial, but it's something you need to do often
 enough in shell scripts that it deserves pointers to additional
 resources.
 
+Getting the Time
+++++++++++++++++
+In administrative scriptining, one frequently wants to put a timestap in
+a file name for nameing logs or whatever. In a shell script, you just
+use the output of ``date`` for this. Python has two libraries for
+dealing with time, and either are good enough to handle this. The time_
+module wraps time functions in libc. If you want to get a timestamp out
+of it, you do something like this:
+
+.. code:: Python
+
+  >>> import time
+  >>> time.strftime('%Y.%m.%d')
+  '2018.08.18'
+
+This can use any of the format spec you see when you run ``$ man date``.
+There is also a ``time.strptime`` function which will take a string as
+input and use the same kind of format string to parse the time out of it
+and into a tuple.
+
+The datetime_ module provides classes for working with time at a high
+level. It's a little cumbersome for very simple things, and incredibly
+helpful for more sophisticated things like math involving time. The one
+handy thing it can do for our case is give us a string of the current
+time without the need for a format specifier.
+
+.. code:: Python
+
+  >>> import datetime
+  >>> # get the current time as a datetime object
+  >>> datetime.datetime.now()
+  datetime.datetime(2018, 8, 18, 10, 5, 56, 518515)
+  >>> now = _
+  >>> str(now)
+  '2018-08-18 10:05:56.518515'
+  >>> now.strftime('%Y.%m.%d')
+  '2018.08.18'
+
+This means, if you're happy with the default string representation of
+the datetime class, you can just do ``str(datetime.datetime.now())`` to
+get the current timestamp. There is also a
+``datetime.datetime.strptime()`` to generate a datetime instance from a
+timestamp.
+
+.. _time: https://docs.python.org/3/library/time.html
+.. _datetime: https://docs.python.org/3/library/datetime.html
+
 Interprocess Communication
 ++++++++++++++++++++++++++
 I'm not sure if IPC is really part of bash scripting, but sometimes
@@ -1135,6 +1246,22 @@ a daemon that you're just interacting with over localhost, you're going
 to get better performance using the ``UnixStreamServer`` class, and you
 won't use up a port. Plus, Unix sockets will make your Unix beard grow
 better.
+
+The problem with either of these is that they just block until they get
+a message (unless you use the threaded socket server, which might be
+fine in some cases. If you want your daemon to do work while
+simultaniously listening for input, you need threads or asyncio.
+Unfortunately for you, this tutorial is about replacing Bash with
+Python, and I'm not about to try to teach you concurrency.
+
+.. Note::
+  I'll just say that the python threading module is fine for IO-bound
+  multitasking on a small scale. If you need something large-scale, use
+  asyncio. If you need real concurrent execution, know that Python
+  threads are a lie, and asyncio doesn't do that. You need
+  multiprocessing. If you need concurrent execution, but processes are
+  too expensive, use another programming language. Python has
+  limitations in this area.
 
 .. _socketserver: https://docs.python.org/3/library/socketserver.html
 
