@@ -1128,7 +1128,7 @@ package:
 The ``subprocess``, as mentioned earlier, is safe from injection by
 default, unless ``shell=True`` is used. However, there are some programs
 that will give arguments to a shell after they are started. SSH is a
-classic example. Everything argument you send with ssh gets parsed by a
+classic example. Every argument you send with ssh gets parsed by a
 shell on the remote system.
 
 As soon as a process gets a shell, you're giving up one of the main
