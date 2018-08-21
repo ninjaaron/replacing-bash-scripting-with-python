@@ -448,6 +448,79 @@ even more advanced CLI interfaces.
 .. _API docs: https://docs.python.org/3/library/argparse.html
 .. _click: http://click.pocoo.org/5/
 
+short example of a Python script which integrates well with coreutils
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Here's a quick example of a very simple script with an interface that is
+useful for integrating with other programs.
+
+At the moment of this writing, I'm running a program in the background
+to scrape videos off a website. Sometimes there is a problem, and the
+video doesn't completely download, but no error is thrown. When that
+happens, the length of the video in seconds (according to the metadata)
+divided by the actual size of the video reveals a bitrate much lower
+than the expected average. This script prints that number (in
+kilobytes) along with the file's name.
+
+.. code:: Python
+
+  #!/usr/bin/env python3
+  import sys
+  import os
+  from mutagen import mp4  # awesome library for working with metadata
+                           # in media files.
+
+
+  def main():
+      paths = sys.argv[1:]  # takes a list of files to be checked as args
+      for path in paths:
+          length = mp4.MP4(path).info.length  # length in seconds
+          size = os.stat(path).st_size / 1024  # size in bytes / 1024 = KB
+          kbps = round(size/length)  # get rid of the fractional part.
+          print(kbps, path, sep='\t')
+
+
+  if __name__ == '__main__':
+      main()
+
+This first things first, this ``if __name__ == '__main__': main()``
+thing is some standard boilerplate for Python shell scripts that makes
+sure they are not being used as a library before running the ``main``
+function. It's not necessary, it's just best practice and you'll be glad
+you did it if your codebase needs to grow.
+
+First, I'm iterating on path names which are given at the command line.
+to check all the mp4s in a folder, you'd run ``./my_script *mp4``. once we
+have the necessarily information about the file (size/length), we print
+that to stdout, along with the path name. The two values are separated
+by a tab character. We could add other fields with information about the
+file, but this is enough for my purpose.
+
+The beautiful thing about printing data on lines separated by tabs is
+that now it's interoperable with other utilities on the system:
+
+.. code:: Bash
+
+  $ ./my_script *.mp4 | awk -F '\t' '$1 < 740 {print $0}'
+
+``awk`` as you probably know, is a language for parsing lines of text.
+``-F '\t'`` tells awk to split lines on the tab character. ``$1 < 740``
+checks is if the first field of the line is less than 740 (a good cutoff
+for what the length/size should be for a complete file in my case) and,
+if so, executes the statement in brackets. In this case, it's printing
+the whole line (``$0``).
+
+Of course, it would be simple to modify the python script to Say
+
+.. code:: Python
+
+  if kbps < 740:
+      print(kbps, path, sep='\t')
+
+However, using awk instead means it's easy to change the requirements at
+the command line on the fly. Obviously a lot more can be said about
+this the idea of designing tools for interop with the shell. But we must
+be moving on!
+
 Environment Variables and Config files
 ++++++++++++++++++++++++++++++++++++++
 Ok, environment variables and config files aren't necessarily only part
@@ -603,14 +676,27 @@ Here's the overview:
   >>> os.remove('a_file') # ok, that's not shutil
   >>> # $ rm -r a_dir
   >>> shutil.rmtree('a_dir')
+  >>> # $ tar caf 'my_archive.tar.gz' 'my_folder'
+  >>> shutil.make_archive('my_archive.tar.gz', 'gztar', 'my_folder')
+  >>> # $ tar xaf 'my_archive.tar.gz'
+  >>> shutil.unpack_archive('my_archive.tar.gz')
+  >>> # chown user:ninjaaron a_file.txt
+  >>> shutil.chown('a_file.txt', 'ninjaaron', 'user')
+  >>> # info about disk usage, a bit like `df`, but not exactly.
+  >>> shutil.disk_usage('.')
+  usage(total=123008450560, used=86878904320, free=36129546240)
+  >>> #  ^ sizes in bytes
+  >>> # which vi
+  >>> shutil.which('vi')
+  '/usr/bin/vi'
+  >>> # info about the terminal you're running in.
+  >>> shutil.get_terminal_size()
+  os.terminal_size(columns=138, lines=30)
 
 That's the thousand-foot view of the high-level functions you'll
 normally be using. The module documentation is pretty good for examples,
 but it also has a lot of details about the functions used to implement
 the higher-level stuff I've shown which may or may not be interesting.
-``shutil`` also has a nice wrapper function for creating zip and tar
-archives with various compression algorithms, ``shutil.make_archive()``.
-Worth a look, if you're into that sort of thing.
 
 I should probably also mention ``os.link`` and ``os.symlink`` at this
 point. They create hard and soft links respectively (like ``link`` and
