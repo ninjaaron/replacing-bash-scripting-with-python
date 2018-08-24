@@ -243,7 +243,7 @@ called a "context manager". You can do ``my_file.close()`` manually, but
 the ``with`` block will ensure that happens even if you hit an error
 without having to write a lot of extra code.
 
-The gross thing about context managers is that that they add an extra
+The gross thing about context managers is that they add an extra
 level of indentation. Here's a helper function you can use to open a
 context manager for something you want to be cleaned up after you loop.
 
