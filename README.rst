@@ -21,7 +21,7 @@ For problems where the data can be expressed as a stream of similar
 objects separated by newlines to be processed concurrently through a
 series of filters and handles a lot of I/O, it's difficult to think of a
 more ideal language than the shell. A lot of the core parts on a Unix or
-Linux system are designed to express data in such formats.
+Linux system is designed to express data in such formats.
 
 If the Shell is so great, what's the problem?
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -43,7 +43,7 @@ direct path to arbitrary code execution. This is great if arbitrary code
 execution is actually what you're trying to accomplish (like, say, in an
 HTML template engine), but it's not generally what you want.
 
-Bash basically defaults to evaling everything. This very handy for
+Bash basically defaults to evaling everything. This is very handy for
 interactive use, since it cuts down in the need for a lot of explicit
 syntax when all you really want to do is, say, open a file in a text
 editor. This is pretty darn bad in a scripting context because it turns
@@ -60,7 +60,7 @@ let's take the long way there.
 
 .. code:: bash
 
-  $ foo='this   and   that' # variable asignment
+  $ foo='this   and   that' # variable assignment
   $ echo $foo
   this and that
   $ # Oh dear. Text inside the variable was split into arguments on
@@ -115,7 +115,7 @@ automation. I would recommend against Perl for beginners because it has
 some similar issues to Bash: it was a much smaller language when it was
 created, and a lot of the syntax for the newer features has a bolted-on
 feeling [#]_. However, if one knows Perl well and is comfortable with it,
-it's well suited to the task, and is still a much saner choice for
+it's well suited to the task and is still a much saner choice for
 non-trivial automation scripts, and that is one of its strongest domains.
 
 `Node.js`_ is also starting to be used for administrative stuff these
@@ -126,7 +126,7 @@ good support for this kind of thing, and you should just choose one that
 you like and is widely available on Linux and other \*nix operating
 systems.
 
-They main reason I would recommend Python is if you already know it. If
+The main reason I would recommend Python is if you already know it. If
 you don't know anything besides BASH (or BASH and lower-level languages
 like C or even Java), Python is a reasonable choice for your next
 language. It has a lot of mature, fast third-party libraries in a lot of
@@ -142,8 +142,8 @@ language covered in this very compelling tutorial.
 .. _Node.js: https://developer.atlassian.com/blog/2015/11/scripting-with-node/
 .. _Julia: https://docs.julialang.org/en/stable/
 
-.. [#] I'm refering specifically to Perl 5 here. Perl 6 is a better
-       language, in my opinion, but suffers from lack of adoption.
+.. [#] I'm referring specifically to Perl 5 here. Perl 6 is a better
+       language, in my opinion, but suffers from a lack of adoption.
        https://perl6.org/
 
 Learn Python
@@ -162,7 +162,7 @@ flawed, though I do appreciate that it was written by someone with
 strong opinions about correctness, which has some benefits.
 
 This tutorial assumes Python 3.5 or higher, though it may sometimes use
-idioms from newer version, and I will attempt to document when have used
+idioms from newer versions, and I will attempt to document when have used
 an idiom which doesn't work in 3.4, which is apparently the version that
 ships with the latest CentOS and SLES. Use at least 3.6 if you can. It
 has some cool new features, but the implementation of dictionaries
@@ -237,7 +237,7 @@ The ``open()`` function returns a file object. If you just send it the
 path name as a string, it's going to assume it's a text file in the
 default system encoding (UTF-8, right?), and it is opened only for
 reading. You can, of course, do ``my_file = open('my_file.txt')`` as
-well. When you use ``with x as y:`` instead of asignment, it ensures the
+well. When you use ``with x as y:`` instead of assignment, it ensures the
 object is properly cleaned up when the block is exited using something
 called a "context manager". You can do ``my_file.close()`` manually, but
 the ``with`` block will ensure that happens even if you hit an error
@@ -245,7 +245,7 @@ without having to write a lot of extra code.
 
 The gross thing about context managers is that that they add an extra
 level of indentation. Here's a helper function you can use to open a
-context manager for something you want cleaned up after you loop.
+context manager for something you want to be cleaned up after you loop.
 
 .. code:: Python
 
@@ -339,7 +339,7 @@ lines containing whatever it is you're searching for. Your setting the
 ``grep``.
 
 
-Great cli scripts should follow the same pattern so you can incorperate
+Great CLI scripts should follow the same pattern so you can incorporate
 them into your shell pipelines.  You can, of course, write your script
 with its own "interactive" interface and read lines of user input one
 at a time:
@@ -375,8 +375,8 @@ In Python, that looks like this:
                           #    time. Just mentioning it because it's a
                           #    difference between python and shell.
 
-Naturally, you can also slurp stdin in one go -- though this isn't the
-most Unix-y design choice, and you could use up your RAM with a very
+Naturally, you can also slurp stdin in one go, though this isn't the
+most Unix-y design choice and you could use up your RAM with a very
 large file:
 
 .. code:: Python
@@ -406,7 +406,7 @@ If you want more advanced logging functions, check out the `logging
 module`_.
 
 Using ``stdin``, ``stdout`` and ``stderr``, you can write python
-programs which behave as filters and integrate well into a unix
+programs which behave as filters and integrate well into a Unix
 workflow.
 
 .. _logging module:
@@ -472,13 +472,13 @@ files, and also a json_ parser. I don't really like the idea of
 human-edited json, but go ahead and shoot yourself in the foot if you
 want to. At least it's flexible.
 
-PyYaml_, the yaml parser, and toml_ are third-party libraries that are
+PyYAML_, the YAML parser, and TOML_ are third-party libraries that are
 useful for configuration files.
 
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _json: https://docs.python.org/3/library/json.html
-.. _PyYaml: http://pyyaml.org/wiki/PyYAMLDocumentation
-.. _toml: https://github.com/uiri/toml
+.. _PyYAML: http://pyyaml.org/wiki/PyYAMLDocumentation
+.. _TOML: https://github.com/uiri/toml
 
 Filesystem Stuff
 ----------------
@@ -545,17 +545,17 @@ Again, check out the documentation for more info. pathlib.Path_. Since
 the standard library that take a path name as a string argument can also
 take a ``Path`` instance. If you find a function that doesn't, or you're
 on an older version of Python, you can always get a string for a path
-that is correct for your platform by by using ``str(my_path)``. If you
+that is correct for your platform by using ``str(my_path)``. If you
 need a file operation that isn't provided by the ``Path`` instance,
 check the docs for os.path_ and os_ and see if they can help you out. In
 fact, os_ is always a good place to look if you're doing system-level
-stuff with permissions and uids and so forth.
+stuff with permissions and UIDs and so forth.
 
 If you're doing globbing with a ``Path`` instance, be aware that, like
 ZSH, ``**`` may be used to glob recursively. It also (unlike the shell)
-will included hidden files (files whose names begin with a dot). Given
+will include hidden files (files whose names begin with a dot). Given
 this and the other kinds of attribute testing you can do on ``Path``
-instances, it can do a lot of of the kinds of stuff ``find`` can do.
+instances, it can do a lot of the kinds of stuff ``find`` can do.
 
 
 .. code:: Python
@@ -564,7 +564,7 @@ instances, it can do a lot of of the kinds of stuff ``find`` can do.
 
 Oh. Almost forgot. ``p.stat()``, as you can see, returns an
 os.stat_result_ instance. One thing to be aware of is that the
-``st_mode``, (i.e. permissions bits) are represented as an integer, so
+``st_mode``, (i.e. permissions bits) is represented as an integer, so
 you might need to do something like ``oct(p.stat().st_mode)`` to show
 what that number will look like in octal, which is how you set it with
 ``chmod`` in the shell.
@@ -637,12 +637,12 @@ Replacing ``sed``, ``grep``, ``awk``, etc: Python regex
 This section is not so much for experienced programmers who already know
 more or less how to use regexes for matching and string manipulation in
 other "normal" languages. Python is not so exceptional in this regard,
-though if you're used to JavaScript, Ruby, Perl and others, you may be
+though if you're used to JavaScript, Ruby, Perl, and others, you may be
 surprised to find that Python doesn't have regex literals. The regex
 functionally is all encapsulated in the re_ module. (The official docs
 have a `regex HOWTO`_, which is a good place to start if you don't know
 anything about regular expressions. If you have some experience, I'd
-recommed going straight for the re_ API docs.)
+recommend going straight for the re_ API docs.)
 
 This section is for people who know how to use programs like ``sed``,
 ``grep`` and ``awk`` and wish to get similar results in Python, though
@@ -652,7 +652,7 @@ used for.
 I admit that writing simple text filters in Python will never be as
 elegant as it is in Perl, since Perl was more or less created to be like
 a super-powered version of the ``sh`` + ``awk`` + ``sed``. The same
-thing can sort of be said of ``awk``, the original text-filtering
+thing can sort of be said about ``awk``, the original text-filtering
 language on Unix. The main reason to use Python for these tasks is that
 the project is going to scale a lot more easily when you want to do
 something a bit more complex.
@@ -689,7 +689,7 @@ start there.
 
 If you don't need pattern matching (i.e. something you could do with
 ``fgrep``), you don't need regex to match a substring. You can simply
-use builtin syntax:
+use built-in syntax:
 
 .. code:: python
 
@@ -706,7 +706,7 @@ Otherwise, you need the regex module to match things:
   >>> re.search(r'a pattern', r'string without the pattern')
   >>> # Returns None, which isn't printed in the Python REPL
 
-I'm not going to go into the details of the "match object" that the
+I'm not going to go into the details of the "match object" that
 is returned at the moment. The main thing for now is that it evaluates
 to ``True`` in a boolean context. You may also notice I use raw strings
 ``r''``. This is to keep Python's normal escape sequences from being
@@ -729,8 +729,8 @@ a list comprehension because that means each result is produced as
 needed with lazy evaluation. This will save your RAM if you're working
 with a large file. You can invert the result, like ``grep -v`` simply by
 adding ``not`` to the ``if`` clause. There are also flags you can add to
-do things like ignore case (``flags=re.I``), etc. Check out the docs for
-more.
+do things like ignoring the case (``flags=re.I``), etc. Check out the docs
+for more.
 
 Example: searching logs for errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -757,7 +757,7 @@ processing. If you want to print them, the next step is
 ``print(*matches)`` or ``for line in matches: print(line, end='')``.
 However, this is in the context of a script, so you probably want to
 extract further information from the line and do something
-programatically with it anyway.
+programmatically with it anyway.
 
 .. _generator expression:
   https://docs.python.org/3/tutorial/classes.html#generator-expressions
@@ -838,7 +838,7 @@ should be avoided, but specialized programs for manipulating the
 system are fair game -- However, in some cases, there will be a
 3rd-party Python library that provides a wrapper on the underlying C
 code. The library will, of course, be faster than spawning a new
-process in most cases. Use your best judgement. Be extra judicious if
+process in most cases. Use your best judgment. Be extra judicious if
 you're trying to write re-usable library code.
 
 There are a number of functions which shall not be named in the os_
@@ -1002,7 +1002,7 @@ So that's awkward. In fact, this madness was one of my primary
 motivations for writing easyproc_.
 
 If you want to sen a string to the stdin of a process, you will use a
-different ``run`` parameter, ``input`` (again, requries bytes unless
+different ``run`` parameter, ``input`` (again, requires bytes unless
 ``universal_newlines=True``).
 
 .. code:: Python
@@ -1041,7 +1041,7 @@ for dealing with messages from the process. It works as expected:
   b"ls: cannot access 'foo bar baz': No such file or directory\n"
 
 However, another common thing to do with stderr in administrative
-scripts is to to combine it with stdout using the oh-so-memorable
+scripts is to combine it with stdout using the oh-so-memorable
 incantation shell incantation of ``2>&1``. ``subprocess`` has a thing
 for that, too, the ``STDOUT`` constant.
 
@@ -1068,8 +1068,8 @@ Background Processes and Concurrency
 ``subprocess.run`` starts a process, waits for it to finish, and then
 returns a ``CompletedProcess`` instance that has information about what
 happened. This is probably what you want in most cases. However, if you
-want processes to run in the background or need interact with them while
-they continue to run, you need the Popen_ constructor.
+want processes to run in the background or need to interact with them while
+they continue to run, you need the the Popen_ constructor.
 
 If you simply want to start a process in the background while you get on
 with your script, it's a lot like ``run``.
@@ -1182,10 +1182,10 @@ resources.
 
 Getting the Time
 ++++++++++++++++
-In administrative scriptining, one frequently wants to put a timestap in
-a file name for nameing logs or whatever. In a shell script, you just
+In administrative scripting, one frequently wants to put a timestamp in
+a file name for naming logs or whatever. In a shell script, you just
 use the output of ``date`` for this. Python has two libraries for
-dealing with time, and either are good enough to handle this. The time_
+dealing with time, and either is good enough to handle this. The time_
 module wraps time functions in libc. If you want to get a timestamp out
 of it, you do something like this:
 
@@ -1203,7 +1203,7 @@ and into a tuple.
 The datetime_ module provides classes for working with time at a high
 level. It's a little cumbersome for very simple things, and incredibly
 helpful for more sophisticated things like math involving time. The one
-handy thing it can do for our case is give us a string of the current
+handy thing it can do for our case is to give us a string of the current
 time without the need for a format specifier.
 
 .. code:: Python
@@ -1218,7 +1218,7 @@ time without the need for a format specifier.
   >>> now.strftime('%Y.%m.%d')
   '2018.08.18'
 
-This means, if you're happy with the default string representation of
+This means that, if you're happy with the default string representation of
 the datetime class, you can just do ``str(datetime.datetime.now())`` to
 get the current timestamp. There is also a
 ``datetime.datetime.strptime()`` to generate a datetime instance from a
@@ -1267,7 +1267,7 @@ better.
 The problem with either of these is that they just block until they get
 a message (unless you use the threaded socket server, which might be
 fine in some cases). If you want your daemon to do work while
-simultaniously listening for input, you need threads or asyncio.
+simultaneously listening for input, you need threads or asyncio.
 Unfortunately for you, this tutorial is about replacing Bash with
 Python, and I'm not about to try to teach you concurrency.
 
