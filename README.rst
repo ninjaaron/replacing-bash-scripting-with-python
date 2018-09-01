@@ -1001,7 +1001,7 @@ between bytes and strings in Python. *Update: as of Python 3.7,
 So that's awkward. In fact, this madness was one of my primary
 motivations for writing easyproc_.
 
-If you want to sen a string to the stdin of a process, you will use a
+If you want to send a string to the stdin of a process, you will use a
 different ``run`` parameter, ``input`` (again, requires bytes unless
 ``universal_newlines=True``).
 
