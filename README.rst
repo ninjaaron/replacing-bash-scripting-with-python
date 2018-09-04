@@ -647,7 +647,11 @@ recommend going straight for the re_ API docs.)
 This section is for people who know how to use programs like ``sed``,
 ``grep`` and ``awk`` and wish to get similar results in Python, though
 short explanations will be provided of what those utilities are commonly
-used for.
+used for. The intent is not that you should use Python wherever you
+might use one-liners with these programs in the course of normal shell
+usage (or in the the middle of the kinds of process orchestration
+scripts that Bash does so well). The idea is rather that, when writing a
+Python script, you won't be tempted to shell out for text processing.
 
 I admit that writing simple text filters in Python will never be as
 elegant as it is in Perl, since Perl was more or less created to be like
@@ -799,7 +803,7 @@ How to ``awk``
 The ``sed`` section needed a little disclaimer. The ``awk`` section
 needs a bigger one. AWK is a Turing-complete text/table processing
 language.  I'm not going to cover how to do everything AWK can do with
-Python idioms.
+Python idioms. [#]_
 
 However, inside of shell scripts, it's most frequently used to extract
 fields from tabular data, such as tsv files. Basically, it's used to
@@ -823,6 +827,11 @@ see re.split_ and `Splitting Strings`_.
 .. _re.split: https://docs.python.org/3/library/re.html#re.split
 .. _Splitting Strings:
   https://docs.python.org/3/howto/regex.html#splitting-strings
+
+.. [#] It has been pointed out to me that ``sed`` is also Turing
+       complete, and it seems to be the case. However, implementing
+       algorithms in ``sed`` is not nice. AWK is really a rather plesant
+       language.
 
 Running Processes
 -----------------
