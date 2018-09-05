@@ -31,8 +31,8 @@ to have big problems. When Bash is coordinating external programs, it's
 fantastic. When it's doing any work whatsoever itself, it disintegrates
 into a pile of garbage.
 
-For me, the fundamental problem with Bash and other shell dialects is
-that text is identifiers and identifiers are text -- and basically
+For me, the fundamental problem with Bash and many other shell dialects
+is that text is identifiers and identifiers are text -- and basically
 everything else is also text. In some sense, this makes the shell a
 homoiconic language, which theoretically means it might have an
 interesting metaprogramming story, until you realize that it basically
