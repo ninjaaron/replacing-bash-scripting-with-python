@@ -23,13 +23,18 @@ series of filters and handles a lot of I/O, it's difficult to think of a
 more ideal language than the shell. A lot of the core parts on a Unix or
 Linux system is designed to express data in such formats.
 
+This tutorial is NOT about getting rid of bash altogether! In fact, one
+of the main goals of the section on `Command-Line Interfaces`_ is to
+show how to write programs that integrate well with the process
+orchestration faculties of the shell.
+
 If the Shell is so great, what's the problem?
 +++++++++++++++++++++++++++++++++++++++++++++
 The problem is if you want to do basically anything else, e.g. write
-logic, use control structures, handle complex data... You're going
-to have big problems. When Bash is coordinating external programs, it's
-fantastic. When it's doing any work whatsoever itself, it disintegrates
-into a pile of garbage.
+logic, use control structures, handle data... You're going to have big
+problems. When Bash is coordinating external programs, it's fantastic.
+When it's doing any work whatsoever itself, it disintegrates into a pile
+of garbage.
 
 For me, the fundamental problem with Bash and many other shell dialects
 is that text is identifiers and identifiers are text -- and basically
@@ -106,6 +111,9 @@ got one answer: "greycat wanted to remain sane."
 And really, that answer should be enough. Do you want to remain sane? Do
 you want people who maintain your code in the future not to curse your
 name? Don't use Bash. Do your part in the battle against mental illness.
+
+*Ok, that was a little hyperbolic. For an opinion about when it's aright
+to use Bash, see:* `Epilogue: Choose the right tool for the job.`_
 
 Why Python?
 +++++++++++
@@ -316,8 +324,8 @@ section.
 .. _reading and writing files:
   https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
 
-Command-Line Interfaces in Python
----------------------------------
+Command-Line Interfaces
+-----------------------
 
 Working with ``stdin``, ``stdout`` and ``stderr``
 +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -835,21 +843,47 @@ see re.split_ and `Splitting Strings`_.
 
 Running Processes
 -----------------
+
+Disclaimer
+++++++++++
 I come to this section at the end of the tutorial because one
 *generally should not be running a lot of processes inside of a Python
-script*. However, there are plenty of times when this "rule" should be
-broken. Say you want to do some automation with packages on your
-system; you'd be nuts not to use ``apt`` or ``yum`` (spelled ``dnf``
-these days) or whatever your package manager is. Same applies if
-you're doing ``mkfs`` or using a very mature and featureful program
-like ``rsync``. My general rule is that any kind of filtering utility
-should be avoided, but specialized programs for manipulating the
-system are fair game -- However, in some cases, there will be a
-3rd-party Python library that provides a wrapper on the underlying C
-code. The library will, of course, be faster than spawning a new
-process in most cases. Use your best judgment. Be extra judicious if
-you're trying to write re-usable library code.
+script*. One common strategy in the realm of complex administrative
+tasks is to do the orchestration in bash and hand data handling off to
+Python, which is one of the reasons it's important for your program to
+have a good command-line interface. If you can read data from stdin and
+print to stdout and stderr, you're in good shape!
 
+However, there are times when this model of separation of domains
+between Python and the shell is not practical, and it's easier simply to
+execute the external program from inside your Python script.
+Practicality beats purity.
+
+Say you want to do some automation with packages on your system; you'd
+be nuts not to use ``apt`` or ``yum`` (spelled ``dnf`` these days) or
+whatever your package manager is. Same applies if you're doing ``mkfs``
+or using a very mature and featureful program like ``rsync``. My general
+rule is that any kind of filtering utility should be avoided, but
+specialized programs for manipulating the system are fair game --
+However, in some cases, there will be a 3rd-party Python library that
+provides a wrapper on the underlying C code. The library will, of
+course, be faster than spawning a new process in most cases. Use your
+best judgment. Be extra judicious if you're trying to write re-usable
+library code.
+
+Another thing to keep in mind (and this goes for the shell as well, it's
+just much more difficult to avoid it), is don't spawn processes inside
+of hot loops. Spawning new processes is a relatively expensive job for
+the operating system. Spawning one instance or even ten is no big deal
+(depending on the program, of course). Spawning a process thousands or
+millions of times in a loop, no matter how lightweight the process is,
+is a terrible idea. On the other hand, using an optimized C program that
+can do a lot of work at one shot may well be faster than trying to do
+the same work natively in Python (provided there is no well-supported C
+library for Python).
+
+The ``subprocess`` Module
++++++++++++++++++++++++++
 There are a number of functions which shall not be named in the os_
 module that can be used to spawn processes. They have a variety of
 problems. Some run processes in subshells (c.f. injection
@@ -932,7 +966,7 @@ least try something else. You could, do this manually:
 
   >>> proc = sp.run(['ls', '-lh', 'foo bar baz'])
   ls: cannot access 'foo bar baz': No such file or directory
-  >>> if proc.returncode != 0:                   
+  >>> if proc.returncode != 0:
   ...     # do something else
 
 This would be most useful in cases where a non-zero exit code indicates
@@ -1304,3 +1338,102 @@ For that, you need urllib.request_.
 
 .. _requests: http://docs.python-requests.org/en/master/
 .. _urllib.request: https://docs.python.org/3/library/urllib.request.html
+
+Epilogue: Choose the right tool for the job.
+--------------------------------------------
+One of the main criticism of this tutorial (I suspect from people who
+haven't read it very well) is that it goes against the philosophy of
+using the best tool for the job. My intention is not that people rewrite
+all existing Bash in Python (though sometimes rewrites might be a net
+gain), nor am I attempting to get people to entirely stop writing new
+Bash scripts.
+
+The tutorial has also been accused of being a "commercial for Python."
+I would have thought the `Why Python?`_ section would show that this is
+not the case, but if not, let me reiterate: Python is one of many
+languages well suited to administrative scripting. The others also
+provide a safer, clearer way to deal with data than the shell. My goal
+is not to get people to use Python as much as it is to try to get people
+to stop handling data in shell scripts.
+
+The "founding fathers" of Unix had already recognized the fundamental
+limitations of the Bourne shell for handling data and created AWK, a
+complementary, string-centric data parsing language. Modern Bash, on the
+other hand, has added a lot of data related features which make it
+possible to do many of the things you might do in AWK directly in Bash.
+Do not use them. They are ugly and difficult to get right. Use AWK
+instead, or Perl or Python or whatever.
+
+When to use Bash
+++++++++++++++++
+I do believe that for a program which deals primarily with starting
+processes and connecting their inputs and outputs, as well as certain
+kinds of file management tasks, the shell should still be the first
+candidate. A good example might be setting up a server. I keep config
+files for my shell environment in GIT (like any sane person), and I use
+``sh`` for all the setup. That's fine. In fact, it's great.
+
+I also have shell scripts for automating certain parts of my build,
+testing and publishing workflow for my programming, and I will probably
+continue to use such scripts for a long time. (I also use Python for
+some of that stuff. Depends on the nature of the task.)
+
+Warning Signs
++++++++++++++
+Many people have rule about the length of their bash scripts. It is oft
+repeated on the Internet that, "If your shell script gets to fifty lines,
+rewrite in another language," or something similar. The number of lines
+varies from 10 to 20 to 50 to 100. Among the Unix old guard, "another
+language" is basically always Perl. I like Python because reasons, but
+the important thing is that it's not Bash.
+
+This kind of rule isn't too bad. Length isn't the problem, but length
+*can* be a side-effect of complexity, and complexity is sort of the
+arch-enemy of Bash. I look for the use of certain features to be an
+indicator that it's time to consider a rewrite. (note that "rewrite" can
+mean moving certain parts of the logic into another language while still
+doing orchestration in Bash). These "warning signs are" listed in order
+of more to less serious.
+
+- If you ever need to type the characters ``IFS=``, rewrite immediately.
+  You're on the highway to Hell.
+- If data is being stored in Bash arrays, either refactor so the data
+  can be streamed through pipelines or use a different language. As with
+  ``IFS``, it means you're entering the wild world of the shell's string
+  splitting rules. That's not the world for you.
+- If you find yourself using braced parameter expansion syntax,
+  ``${my_var}``, and anything is between those braces besides the name
+  of your variable, it's a bad sign. For one, it means you might be
+  using an array, and that's not good. If you're not using an array, it
+  means you're using the shell's string manipulation capabilities. There
+  are cases where this might be allowable (determining the basename of a
+  file, for example), but the syntax for that kind of thing is very
+  strange, and so many other languages supply better string manipulating
+  tools. If you're doing batch file renaming, ``pathlib`` provides a
+  much saner interface, in my opinion.
+- Dealing with files or process output in a loop is not a great idea. If
+  you HAVE to do it, the only right way is with ``while IFS= read -r
+  line``. Don't listen to anyone who tells you differently, ever. Always
+  try to refactor this case as a one-liner with AWK or Perl, or write a
+  script in another language to process the data and call it from Bash.
+  If you have a loop like this, and you are starting any processes
+  inside the loop, you will have major performance problems. This will
+  eventually lead to refactoring with Bash built-ins. In the final
+  stages, it results in madness and suicide.
+- Bash functions, while occasionally useful, can be a sign of trouble.
+  All the variables are global by default. It also means there is enough
+  complexity that you can't do it with a completely linear control flow.
+  That's also not a good sign for Bash. A few Bash functions might be
+  alright, but it's a warning sign.
+- Conditional logic, while it can definitely be useful, is also a sign
+  of increasing complexity. As with functions, using it doesn't mean you
+  have to rewrite, but every time you write one, you should ask yourself
+  the question as to whether the task you're doing isn't better suited
+  to another language.
+
+Finally, if whenever you use a ``$`` in Bash (parameter expansion), you
+must use quotation marks. Always only ever use quotation marks. Never
+forget. Never be lazy. This is a security hazard. As previously
+mentioned, Bash is an injection honeypot. There are a few cases where
+you don't need the quotation marks. They are the exceptions. Do not
+learn them. Just use quotes all the time.
