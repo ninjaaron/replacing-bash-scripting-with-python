@@ -1370,8 +1370,10 @@ I do believe that for a program which deals primarily with starting
 processes and connecting their inputs and outputs, as well as certain
 kinds of file management tasks, the shell should still be the first
 candidate. A good example might be setting up a server. I keep config
-files for my shell environment in GIT (like any sane person), and I use
-``sh`` for all the setup. That's fine. In fact, it's great.
+files for my shell environment in Git (like any sane person), and I
+use ``sh`` for all the setup. That's fine. In fact, it's great. Running
+some commands and symlinking files is a usecase that fits perfectly to
+the strengths of the shell.
 
 I also have shell scripts for automating certain parts of my build,
 testing and publishing workflow for my programming, and I will probably
@@ -1380,7 +1382,7 @@ some of that stuff. Depends on the nature of the task.)
 
 Warning Signs
 +++++++++++++
-Many people have rule about the length of their bash scripts. It is oft
+Many people have rule about the length of their Bash scripts. It is oft
 repeated on the Internet that, "If your shell script gets to fifty lines,
 rewrite in another language," or something similar. The number of lines
 varies from 10 to 20 to 50 to 100. Among the Unix old guard, "another
@@ -1411,15 +1413,15 @@ of more to less serious.
   strange, and so many other languages supply better string manipulating
   tools. If you're doing batch file renaming, ``pathlib`` provides a
   much saner interface, in my opinion.
-- Dealing with files or process output in a loop is not a great idea. If
-  you HAVE to do it, the only right way is with ``while IFS= read -r
-  line``. Don't listen to anyone who tells you differently, ever. Always
-  try to refactor this case as a one-liner with AWK or Perl, or write a
-  script in another language to process the data and call it from Bash.
-  If you have a loop like this, and you are starting any processes
-  inside the loop, you will have major performance problems. This will
-  eventually lead to refactoring with Bash built-ins. In the final
-  stages, it results in madness and suicide.
+- Dealing with process output in a loop is not a great idea. If you HAVE
+  to do it, the only right way is with ``while IFS= read -r line``.
+  Don't listen to anyone who tells you differently, ever. Always try to
+  refactor this case as a one-liner with AWK or Perl, or write a script
+  in another language to process the data and call it from Bash.  If you
+  have a loop like this, and you are starting any processes inside the
+  loop, you will have major performance problems. This will eventually
+  lead to refactoring with Bash built-ins. In the final stages, it
+  results in madness and suicide.
 - Bash functions, while occasionally useful, can be a sign of trouble.
   All the variables are global by default. It also means there is enough
   complexity that you can't do it with a completely linear control flow.
@@ -1431,9 +1433,9 @@ of more to less serious.
   the question as to whether the task you're doing isn't better suited
   to another language.
 
-Finally, if whenever you use a ``$`` in Bash (parameter expansion), you
+Finally, whenever you use a ``$`` in Bash (parameter expansion), you
 must use quotation marks. Always only ever use quotation marks. Never
 forget. Never be lazy. This is a security hazard. As previously
 mentioned, Bash is an injection honeypot. There are a few cases where
 you don't need the quotation marks. They are the exceptions. Do not
-learn them. Just use quotes all the time.
+learn them. Just use quotes all the time. It is always correct.
