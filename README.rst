@@ -454,7 +454,7 @@ even more advanced CLI interfaces.
 
 .. _argparse: https://docs.python.org/3/howto/argparse.html
 .. _API docs: https://docs.python.org/3/library/argparse.html
-.. _click: http://click.pocoo.org/5/
+.. _click: https://click.palletsprojects.com/
 
 Environment Variables and Config files
 ++++++++++++++++++++++++++++++++++++++
@@ -547,7 +547,6 @@ which will be the focus of path manipulation in this tutorial.
   >>> # make file executable with mode bits
   >>> readme.chmod(0o755)
   >>> # ^ note that octal notation is must be explicite.
-  
 Again, check out the documentation for more info. pathlib.Path_. Since
 ``pathlib`` came out, more and more builtin functions and functions in
 the standard library that take a path name as a string argument can also
@@ -599,7 +598,7 @@ and archiving files and directory trees."
 Here's the overview:
 
 .. code:: Python
-  
+
   >>> import shutil
   >>> # $ mv src dest
   >>> shutil.move('src', 'dest')
@@ -838,7 +837,7 @@ see re.split_ and `Splitting Strings`_.
 
 .. [#] It has been pointed out to me that ``sed`` is also Turing
        complete, and it seems to be the case. However, implementing
-       algorithms in ``sed`` is not nice. AWK is really a rather plesant
+       algorithms in ``sed`` is not nice. AWK is really a rather pleasant
        language.
 
 Running Processes
@@ -1004,7 +1003,7 @@ pretty straight-forward:
 
   >>> with open('./foo', 'w') as foofile:
   ...     sp.run(['ls'], stdout=foofile)
-  
+
 Pretty similar with input:
 
 .. code:: Python
@@ -1040,7 +1039,7 @@ between bytes and strings in Python. *Update: as of Python 3.7,
   foo
   out.html
   README.rst
-  
+
 So that's awkward. In fact, this madness was one of my primary
 motivations for writing easyproc_.
 
