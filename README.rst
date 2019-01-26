@@ -13,7 +13,7 @@ Introduction
 ------------
 The Unix shell is one of my favorite inventions ever. It's genius, plain
 and simple. The idea is that the user environment is a Turing-complete,
-declarative programming language. It has a dead-simple model for dealing
+imperative programming language. It has a dead-simple model for dealing
 with I/O and concurrency, which are notoriously difficult in most other
 languages.
 
