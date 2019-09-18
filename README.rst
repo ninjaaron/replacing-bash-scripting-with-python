@@ -547,6 +547,7 @@ which will be the focus of path manipulation in this tutorial.
   >>> # make file executable with mode bits
   >>> readme.chmod(0o755)
   >>> # ^ note that octal notation is must be explicite.
+
 Again, check out the documentation for more info. pathlib.Path_. Since
 ``pathlib`` came out, more and more builtin functions and functions in
 the standard library that take a path name as a string argument can also
