@@ -24,4 +24,27 @@ Para mí el problema fundamental con Bash y muchos dialectos de Shell es que el 
 
 Bash básicamente se basa en evaluar todo. Esto es muy práctico para el uso interactivo, ya que reduce la necesidad de mucha sintaxis explícita cuando lo que realmente quieres hacer es decirle que abra un archivo en un editor de texto. Esto es bastante malo en un contexto interpretativo porque convierte todo el lenguaje en una inyección *honeypot*. Sí, esto es posible y no es muy complicado escribir un Bash seguro una vez conoces los trucos, pero esto requiere una consideración extra que es fácil de olvidar o tener pereza al respecto. Escribir tres o cuatro línea de Bash seguro es sencillo; doscientas es un poco más desafiante.
 
+Bash tiene otros problemas. La sintaxis que no es nativa de la Bourne Shell se ve realmente fea. Por ejemplo, las líneas de comando (*shells*) más modernas tienen *arrays* (en español, vectores o arreglos). Vamos a revisar la sintaxis para iterar un array, pero vamos a tomar el camino largo.
+
+.. code:: bash
+
+  $ foo='esto   y   aquello' # asignación de variable
+  $ echo $foo
+  esto y aquello
+  $ # Oh cielos. El texto dentro de la variable fue dividido en argumentos en espapacio en blanco, porque evalua todas las cosas.
+  $
+  $ # Para evitar este comportamiento insano, hacemos lo siguiente: usamos una interpolación de cadena. :-(
+  $ echo "$foo"
+  esto   y   aquello
+
+¿Qué tiene esto que ver con iterar los arrays? Desafortunadamente la respuesta es «algo».
+
+Para iterar correctamente en las cadenas dentro de un array (lo único que puede contener un array), también usas la sintaxis de interpolación de variables.
+
+.. code:: bash
+
+   for elemento in "${mi_array[@]}"; do
+      cosas que hacer con "$elemento"
+   done
+
 
